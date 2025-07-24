@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Pokémon FireRed Tracker</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f0f5; margin: 20px; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f0f5; margin: 0; }
     .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     h1 { text-align: center; margin-bottom: 20px; color: #333; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 10px; }
@@ -23,49 +22,65 @@
     .dropdown-item:hover { background: #eee; }
     .dropdown-item img { width: 32px; height: 32px; margin-right: 6px; }
     .selected-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; }
-    .selected-line img { width: 24px; height: 24px; }
+    .selected-line img { width: 24px; height: 24px; }/* Login overlay */
+#login-screen { position: fixed; inset: 0; background: #1e1e2f; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; z-index: 9999; }
+#login-box { background: rgba(255,255,255,0.1); padding: 32px 28px; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+#login-box h2 { margin-top: 0; text-align: center; }
+#login-box input { width: 100%; padding: 10px 12px; border-radius: 6px; border: none; margin: 8px 0 16px; box-sizing: border-box; }
+#login-box button { width: 100%; padding: 10px 12px; border: none; border-radius: 6px; background: #4CAF50; color: #fff; cursor: pointer; font-size: 15px; }
+#login-box button:hover { background: #45a049; }
+#login-error { color: #ff8a8a; font-size: 13px; height: 16px; margin-bottom: 8px; text-align: center; }
+
+#controls { margin:16px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+#controls input[type="password"] { padding:6px; flex:1; min-width:220px; }
+#controls button { padding:6px 12px; }
+#save-state-btn { background:#4CAF50; color:#fff; border:none; border-radius:4px; }
+
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Pokémon FireRed Tracker</h1>
-
-    <!-- Step 6: Token input + Refresh/Save buttons -->
-    <div id="controls" style="margin:16px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-      <input id="token-input" type="password" placeholder="GitHub PAT (repo contents:rw)" style="padding:6px; flex:1; min-width:220px;" />
-      <button id="save-token-btn" style="padding:6px 12px;">Save Token</button>
-      <button id="refresh-btn" style="padding:6px 12px;">Refresh</button>
-      <button id="save-state-btn" style="padding:6px 12px; background:#4CAF50; color:#fff; border:none; border-radius:4px;">Save State</button>
+  <!-- Login Screen -->
+  <div id="login-screen" style="display:none;">
+    <div id="login-box">
+      <h2>Enter GitHub Token</h2>
+      <div id="login-error"></div>
+      <input id="login-token" type="password" placeholder="ghp_..." autocomplete="off" />
+      <button id="login-btn">Continue</button>
     </div>
-
-    <table id="tracker">
-      <thead>
-        <tr>
-          <th>Location</th>
-          <th>Name</th>
-          <th contenteditable="true">Player 1</th>
-          <th contenteditable="true">Player 2</th>
-          <th contenteditable="true">Player 3</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button id="add-row-btn">Add Row</button>
+  </div>  <!-- App -->  <div id="app" style="display:none;">
+    <div class="container">
+      <h1>Pokémon FireRed Tracker</h1><!-- Token controls if the user wants to update it later -->
+  <div id="controls">
+    <input id="token-input" type="password" placeholder="GitHub PAT (repo contents:rw)" />
+    <button id="save-token-btn">Save Token</button>
+    <button id="refresh-btn">Refresh</button>
+    <button id="save-state-btn">Save State</button>
   </div>
 
-  <script type="module">
-    /**********************
-     * CONFIG - EDIT THESE
-     **********************/
-    const OWNER  = 'Soru404';         // e.g. 'yourusername'
-    const REPO   = 'FireRed-Mon-Tracker';          // e.g. 'pokemon-tracker'
-    const BRANCH = 'main';            // or 'master'
-    const RAW_URL = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/state.json`;
+  <table id="tracker">
+    <thead>
+      <tr>
+        <th>Location</th>
+        <th>Name</th>
+        <th contenteditable="true">Player 1</th>
+        <th contenteditable="true">Player 2</th>
+        <th contenteditable="true">Player 3</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="add-row-btn">Add Row</button>
+</div>
+
+  </div>  <script type="module">
+    /************ CONFIG ************/
+    const OWNER  = 'Soru404';
+    const REPO   = 'FireRed-Mon-Tracker';
+    const BRANCH = 'main';
+    const RAW_URL      = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/state.json`;
     const DISPATCH_URL = `https://api.github.com/repos/${OWNER}/${REPO}/dispatches`;
 
-    /**********************
-     * Original constants
-     **********************/
+    /************ DATA ************/
     const defaultLocations = [
       "Pallet Town","Viridian City","Pewter City","Cerulean City","Vermilion City","Lavender Town","Celadon City","Fuchsia City","Saffron City","Cinnabar Island",
       "Route 1","Route 2","Route 3","Route 4","Route 5","Route 6","Route 7","Route 8","Route 9","Route 10","Route 11","Route 12","Route 13","Route 14","Route 15","Route 16","Route 17","Route 18","Route 19","Route 20","Route 21","Route 22","Route 23","Route 24","Route 25",
@@ -73,9 +88,54 @@
     ];
     let allLines = [], availableLines = [];
 
-    /**********************
-     * Helpers
-     **********************/
+    /************ LOGIN LOGIC ************/
+    const loginScreen = document.getElementById('login-screen');
+    const loginToken  = document.getElementById('login-token');
+    const loginBtn    = document.getElementById('login-btn');
+    const loginError  = document.getElementById('login-error');
+    const appDiv      = document.getElementById('app');
+
+    function showLogin() { loginScreen.style.display = 'flex'; appDiv.style.display = 'none'; }
+    function showApp()   { loginScreen.style.display = 'none'; appDiv.style.display = 'block'; }
+
+    async function validateToken(token) {
+      try {
+        const res = await fetch('https://api.github.com/rate_limit', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return res.ok;
+      } catch { return false; }
+    }
+
+    async function attemptLogin() {
+      const token = loginToken.value.trim();
+      if (!token) { loginError.textContent = 'Please paste your token.'; return; }
+      loginError.textContent = 'Checking token...';
+      const ok = await validateToken(token);
+      if (!ok) { loginError.textContent = 'Invalid token. Check permissions (repo contents: rw).'; return; }
+      localStorage.setItem('gh_token', token);
+      loginError.textContent = '';
+      loginToken.value = '';
+      await initApp();
+    }
+
+    loginBtn.addEventListener('click', attemptLogin);
+    loginToken.addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
+
+    /************ UI CONTROLS ************/
+    const tokenInput      = document.getElementById('token-input');
+    const saveTokenBtn    = document.getElementById('save-token-btn');
+    const refreshBtn      = document.getElementById('refresh-btn');
+    const saveStateBtn    = document.getElementById('save-state-btn');
+
+    saveTokenBtn.addEventListener('click', () => {
+      const t = tokenInput.value.trim();
+      if (t) { localStorage.setItem('gh_token', t); alert('Token saved locally.'); }
+    });
+    refreshBtn.addEventListener('click', loadState);
+    saveStateBtn.addEventListener('click', saveState);
+
+    /************ CORE FUNCTIONS ************/
     function createRow(location = '', name = '') {
       const isDefault = defaultLocations.includes(location);
       const locAttr = isDefault ? '' : ' contenteditable';
@@ -92,55 +152,36 @@
     }
 
     async function fetchJSON(url) {
-      try {
-        const res = await fetch(url);
-        return res.ok ? res.json() : null;
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
+      try { const r = await fetch(url); return r.ok ? r.json() : null; } catch(e){ console.error(e); return null; }
     }
 
-    /**********************
-     * STEP 4: Load state
-     **********************/
     async function loadState() {
       const tbody = document.querySelector('#tracker tbody');
       tbody.innerHTML = '';
-
       let state = null;
       try {
         const res = await fetch(`${RAW_URL}?t=${Date.now()}`);
         if (res.ok) state = await res.json();
-      } catch (e) {
-        console.error('Failed to fetch state.json', e);
-      }
+      } catch(e){ console.error('Failed to fetch state.json', e); }
 
       if (!state || !Array.isArray(state.rows)) {
-        // fallback
         defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
         return;
       }
 
-      // Players
       document.querySelectorAll('thead th[contenteditable]').forEach((th, i) => {
         if (state.players && state.players[i] != null) th.textContent = state.players[i];
       });
 
-      // Rows
       state.rows.forEach(r => {
         const tr = createRow(r.location, r.name);
         tbody.appendChild(tr);
         r.selections.forEach((sel, pIdx) => {
           if (sel) {
             const cell = tr.querySelector(`td[data-player="${pIdx+1}"]`);
-            const wrapper = document.createElement('div');
-            wrapper.className = 'selected-line';
+            const wrapper = document.createElement('div'); wrapper.className = 'selected-line';
             sel.forEach(poke => {
-              const img = document.createElement('img');
-              img.alt = poke.name;
-              img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`;
-              wrapper.appendChild(img);
+              const img = document.createElement('img'); img.alt = poke.name; img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`; wrapper.appendChild(img);
             });
             cell.innerHTML = '';
             cell.appendChild(wrapper);
@@ -149,9 +190,6 @@
       });
     }
 
-    /**********************
-     * STEP 5: Save state
-     **********************/
     function buildState() {
       const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
       const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
@@ -160,10 +198,7 @@
         const selections = [1,2,3].map(p => {
           const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
           return wrapper
-            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({
-                name: img.alt,
-                id: Number(img.src.match(/\/(\d+)\.png$/)[1])
-              }))
+            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({ name: img.alt, id: Number(img.src.match(/\/(\d+)\.png$/)[1]) }))
             : null;
         });
         return { location, name, selections };
@@ -173,15 +208,9 @@
 
     async function saveState() {
       const state = buildState();
-      const json = JSON.stringify(state);
-      const stateB64 = btoa(unescape(encodeURIComponent(json)));
-
+      const stateB64 = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
       const token = localStorage.getItem('gh_token');
-      if (!token) {
-        alert('No GitHub token stored. Enter it, then click \"Save Token\".');
-        return;
-      }
-
+      if (!token) { alert('No token. Please log in again.'); showLogin(); return; }
       const res = await fetch(DISPATCH_URL, {
         method: 'POST',
         headers: {
@@ -189,48 +218,22 @@
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          event_type: 'update-state',
-          client_payload: { state_b64: stateB64 }
-        })
+        body: JSON.stringify({ event_type: 'update-state', client_payload: { state_b64: stateB64 } })
       });
-
-      if (!res.ok) {
-        console.error(await res.text());
-        alert('Save failed. Check console.');
-      } else {
-        alert('Save triggered. GitHub Action will commit in ~20s. Refresh afterwards.');
-      }
+      if (!res.ok) { console.error(await res.text()); alert('Save failed. Check console.'); }
+      else { alert('Save triggered. Refresh after ~20s.'); }
     }
 
-    // Optional: debounce to auto-save after edits
     let saveTimer = null;
-    function saveStateDebounced() {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveState, 1500);
-    }
+    function saveStateDebounced(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 1500); }
 
-    /**********************
-     * STEP 6: Token UI
-     **********************/
-    function storeToken() {
-      const val = document.getElementById('token-input').value.trim();
-      if (val) {
-        localStorage.setItem('gh_token', val);
-        alert('Token saved (locally in this browser).');
-      }
-    }
-
-    /**********************
-     * Evolution chains
-     **********************/
     async function loadEvolutionLines() {
       const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
       if (!data) return;
       const chains = await Promise.all(data.results.map(r => fetch(r.url).then(r => r.json())));
       chains.forEach(chain => {
         const line = [];
-        (function traverse(node) {
+        (function traverse(node){
           const id = Number(node.species.url.match(/\/(\d+)\/$/)[1]);
           line.push({ name: node.species.name, id });
           if (node.evolves_to.length) traverse(node.evolves_to[0]);
@@ -240,89 +243,61 @@
       availableLines = [...allLines];
     }
 
-    /**********************
-     * Dropdown UI
-     **********************/
     function showDropdown(cell) {
       closeDropdown();
       const rect = cell.getBoundingClientRect();
       const dd = document.createElement('div'); dd.className = 'dropdown';
       dd.style.top = rect.bottom + 'px'; dd.style.left = rect.left + 'px';
-
-      const input = document.createElement('input');
-      input.placeholder = 'Search Pokémon...';
-      dd.appendChild(input);
-
-      const list = document.createElement('div');
-      dd.appendChild(list);
-
-      function render(filter = '') {
-        list.innerHTML = '';
-        availableLines.forEach((line, i) => {
-          const text = line.map(p => p.name).join(' → ').toLowerCase();
-          if (!filter || text.includes(filter)) {
-            const item = document.createElement('div'); item.className = 'dropdown-item';
-            line.forEach(p => {
-              const img = document.createElement('img');
-              img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
-              img.alt = p.name;
-              item.appendChild(img);
-            });
-            const span = document.createElement('span');
-            span.textContent = line.map(p => p.name).join(' → ');
-            item.appendChild(span);
-            item.onclick = async () => {
-              const wrapper = document.createElement('div'); wrapper.className = 'selected-line';
-              line.forEach(p => {
-                const img = document.createElement('img');
-                img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
-                img.alt = p.name;
-                wrapper.appendChild(img);
-              });
-              cell.innerHTML = '';
-              cell.appendChild(wrapper);
-              availableLines.splice(i, 1);
-              await saveState();
-              closeDropdown();
+      const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);
+      const list = document.createElement('div'); dd.appendChild(list);
+      function render(filter=''){
+        list.innerHTML='';
+        availableLines.forEach((line,i)=>{
+          const text=line.map(p=>p.name).join(' → ').toLowerCase();
+          if(!filter||text.includes(filter)){
+            const item=document.createElement('div'); item.className='dropdown-item';
+            line.forEach(p=>{const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; item.appendChild(img);});
+            const span=document.createElement('span'); span.textContent=line.map(p=>p.name).join(' → '); item.appendChild(span);
+            item.onclick=async()=>{
+              const wrapper=document.createElement('div'); wrapper.className='selected-line';
+              line.forEach(p=>{const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);});
+              cell.innerHTML=''; cell.appendChild(wrapper);
+              availableLines.splice(i,1);
+              await saveState(); closeDropdown();
             };
             list.appendChild(item);
           }
         });
       }
-
-      input.oninput = () => render(input.value.trim().toLowerCase());
+      input.oninput=()=>render(input.value.trim().toLowerCase());
       render();
       document.body.appendChild(dd);
     }
+    function closeDropdown(){ const e=document.querySelector('.dropdown'); if(e) e.remove(); }
 
-    function closeDropdown() {
-      const e = document.querySelector('.dropdown');
-      if (e) e.remove();
-    }
-
-    /**********************
-     * Init
-     **********************/
-    document.addEventListener('DOMContentLoaded', async () => {
-      document.getElementById('save-token-btn').addEventListener('click', storeToken);
-      document.getElementById('refresh-btn').addEventListener('click', loadState);
-      document.getElementById('save-state-btn').addEventListener('click', saveState);
-
+    async function initApp(){
+      showApp();
       await loadEvolutionLines();
       await loadState();
-
-      document.getElementById('add-row-btn').addEventListener('click', async () => {
+      document.getElementById('add-row-btn').addEventListener('click', async ()=>{
         const tr = createRow('', '');
         document.querySelector('#tracker tbody').appendChild(tr);
         await saveState();
       });
-
       document.addEventListener('click', e => {
         const cell = e.target.closest('.cell');
-        if (cell) showDropdown(cell);
-        else if (!e.target.closest('.dropdown')) closeDropdown();
+        if (cell) showDropdown(cell); else if (!e.target.closest('.dropdown')) closeDropdown();
       });
-    });
-  </script>
-</body>
+    }
+
+    (async function(){
+      const stored = localStorage.getItem('gh_token');
+      if (!stored) {
+        showLogin();
+      } else {
+        const ok = await validateToken(stored);
+        if (!ok) showLogin(); else await initApp();
+      }
+    })();
+  </script></body>
 </html>
