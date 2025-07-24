@@ -59,7 +59,7 @@
       <!-- Token controls if the user wants to update it later -->
       <div id="controls">
         <button id="refresh-btn">Refresh</button>
-        <button id="save-state-btn">Save State</button>
+        <button id="save-state-btn">Save</button>
       </div>
 
       <table id="tracker">
@@ -133,7 +133,7 @@
     const saveStateBtn    = document.getElementById('save-state-btn');
 
     refreshBtn.addEventListener('click', loadState);
-    saveStateBtn.addEventListener('click', saveState);
+    saveStateBtn.addEventListener('click', saveState); // Only explicit saves now
 
     /************ CORE FUNCTIONS ************/
     function createRow(location = '', name = '') {
@@ -147,7 +147,7 @@
         <td class="cell" data-player="2"></td>
         <td class="cell" data-player="3"></td>
       `;
-      tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', saveStateDebounced));
+      // Autosave removed to prevent collisions
       return tr;
     }
 
@@ -231,8 +231,7 @@
       else { alert('Save triggered. Refresh after ~20s.'); }
     }
 
-    let saveTimer = null;
-    function saveStateDebounced(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 1500); }
+    
 
     async function loadEvolutionLines() {
       const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
@@ -248,6 +247,25 @@
         allLines.push(line);
       });
       availableLines = [...allLines];
+      // --- Add one evolution line for each Eevee evolution ---
+      (function addEeveeLines(){
+        const eeveeId = 133;
+        const eeveeName = 'eevee';
+        const evoMap = [
+          { name: 'vaporeon', id: 134 },
+          { name: 'jolteon',  id: 135 },
+          { name: 'flareon',  id: 136 },
+          { name: 'espeon',   id: 196 },
+          { name: 'umbreon',  id: 197 },
+          { name: 'leafeon',  id: 470 },
+          { name: 'glaceon',  id: 471 },
+          { name: 'sylveon',  id: 700 }
+        ];
+        evoMap.forEach(evo => {
+          allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
+        });
+        availableLines = [...allLines];
+      })();
     }
 
     function showDropdown(cell) {
@@ -270,7 +288,7 @@
               line.forEach(p=>{const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);});
               cell.innerHTML=''; cell.appendChild(wrapper);
               availableLines.splice(i,1);
-              await saveState(); closeDropdown();
+              closeDropdown(); // Manual save only via button
             };
             list.appendChild(item);
           }
@@ -289,7 +307,7 @@
       document.getElementById('add-row-btn').addEventListener('click', async ()=>{
         const tr = createRow('', '');
         document.querySelector('#tracker tbody').appendChild(tr);
-        await saveState();
+        // Manual save only via button
       });
       document.addEventListener('click', e => {
         const cell = e.target.closest('.cell');
