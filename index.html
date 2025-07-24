@@ -1,111 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Pokémon FireRed Tracker</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f0f0f5;
-      margin: 20px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-    thead th {
-      background-color: #4CAF50;
-      color: #fff;
-      padding: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    /* Player headers in black */
-    thead th[contenteditable] {
-      color: #000;
-    }
-    tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    tbody tr:hover {
-      background-color: #f1f1f1;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      text-align: center;
-      padding: 8px;
-    }
-    td:first-child {
-      text-align: left;
-      font-weight: 600;
-      background-color: #fcfcfc;
-      width: 200px;
-    }
-    th[contenteditable], td[contenteditable] {
-      background: #eef;
-      cursor: text;
-    }
-    .dropdown {
-      position: absolute;
-      background: white;
-      border: 1px solid #aaa;
-      max-height: 350px;
-      overflow-y: auto;
-      z-index: 100;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      padding: 5px;
-      min-width: 200px;
-    }
-    .dropdown input {
-      width: 100%;
-      padding: 4px;
-      margin-bottom: 6px;
-      box-sizing: border-box;
-    }
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      padding: 4px;
-      cursor: pointer;
-    }
-    .dropdown-item:hover {
-      background: #eee;
-    }
-    .dropdown-item img {
-      width: 32px;
-      height: 32px;
-      margin-right: 6px;
-    }
-    .selected-line {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-    .selected-line img {
-      width: 24px;
-      height: 24px;
-    }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f0f5; margin: 20px; }
+    .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 20px; color: #333; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 10px; }
+    thead th { background-color: #4CAF50; color: #fff; padding: 12px; position: sticky; top: 0; z-index: 2; }
+    thead th[contenteditable] { color: #000; }
+    tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    tbody tr:hover { background-color: #f1f1f1; }
+    th, td { border: 1px solid #ddd; text-align: center; padding: 8px; }
+    td.location-cell { text-align: left; font-weight: 600; background-color: #fcfcfc; width: 200px; }
+    th[contenteditable], td[contenteditable] { background: #eef; cursor: text; }
+    #add-row-btn { padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    #add-row-btn:hover { background-color: #45a049; }
+    .dropdown { position: absolute; background: white; border: 1px solid #aaa; max-height: 350px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); padding: 5px; min-width: 200px; }
+    .dropdown input { width: 100%; padding: 4px; margin-bottom: 6px; box-sizing: border-box; }
+    .dropdown-item { display: flex; align-items: center; padding: 4px; cursor: pointer; }
+    .dropdown-item:hover { background: #eee; }
+    .dropdown-item img { width: 32px; height: 32px; margin-right: 6px; }
+    .selected-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; }
+    .selected-line img { width: 24px; height: 24px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Pokémon FireRed Tracker</h1>
+
+    <!-- Step 6: Token input + Refresh/Save buttons -->
+    <div id="controls" style="margin:16px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      <input id="token-input" type="password" placeholder="GitHub PAT (repo contents:rw)" style="padding:6px; flex:1; min-width:220px;" />
+      <button id="save-token-btn" style="padding:6px 12px;">Save Token</button>
+      <button id="refresh-btn" style="padding:6px 12px;">Refresh</button>
+      <button id="save-state-btn" style="padding:6px 12px; background:#4CAF50; color:#fff; border:none; border-radius:4px;">Save State</button>
+    </div>
+
     <table id="tracker">
       <thead>
         <tr>
@@ -118,32 +50,88 @@
       </thead>
       <tbody></tbody>
     </table>
+    <button id="add-row-btn">Add Row</button>
   </div>
-  <script>
-    const stateFile = 'state.json';
+
+  <script type="module">
+    /**********************
+     * CONFIG - EDIT THESE
+     **********************/
+    const OWNER  = '<OWNER>';         // e.g. 'yourusername'
+    const REPO   = '<REPO>';          // e.g. 'pokemon-tracker'
+    const BRANCH = 'main';            // or 'master'
+    const RAW_URL = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/state.json`;
+    const DISPATCH_URL = `https://api.github.com/repos/${OWNER}/${REPO}/dispatches`;
+
+    /**********************
+     * Original constants
+     **********************/
+    const defaultLocations = [
+      "Pallet Town","Viridian City","Pewter City","Cerulean City","Vermilion City","Lavender Town","Celadon City","Fuchsia City","Saffron City","Cinnabar Island",
+      "Route 1","Route 2","Route 3","Route 4","Route 5","Route 6","Route 7","Route 8","Route 9","Route 10","Route 11","Route 12","Route 13","Route 14","Route 15","Route 16","Route 17","Route 18","Route 19","Route 20","Route 21","Route 22","Route 23","Route 24","Route 25",
+      "Mt. Moon","Diglett's Cave","Rock Tunnel","Seafoam Islands","Victory Road"
+    ];
     let allLines = [], availableLines = [];
 
-    async function fetchJSON(file) {
-      const res = await fetch(file);
-      return res.ok ? res.json() : null;
+    /**********************
+     * Helpers
+     **********************/
+    function createRow(location = '', name = '') {
+      const isDefault = defaultLocations.includes(location);
+      const locAttr = isDefault ? '' : ' contenteditable';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="location-cell"${locAttr}>${location}</td>
+        <td contenteditable>${name}</td>
+        <td class="cell" data-player="1"></td>
+        <td class="cell" data-player="2"></td>
+        <td class="cell" data-player="3"></td>
+      `;
+      tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', saveStateDebounced));
+      return tr;
     }
 
+    async function fetchJSON(url) {
+      try {
+        const res = await fetch(url);
+        return res.ok ? res.json() : null;
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    /**********************
+     * STEP 4: Load state
+     **********************/
     async function loadState() {
-      const state = await fetchJSON(stateFile);
-      if (!state) return;
-      // Restore player headers
-      document.querySelectorAll('thead th[contenteditable]').forEach((th, i) => {
-        if (state.players[i] != null) th.textContent = state.players[i];
-      });
-      // Restore rows
       const tbody = document.querySelector('#tracker tbody');
-      state.rows.forEach((rowState, idx) => {
-        const tr = tbody.children[idx];
-        if (!tr) return;
-        // Name cell
-        tr.cells[1].textContent = rowState.name || '';
-        // Selected evolution
-        rowState.selections.forEach((sel, pIdx) => {
+      tbody.innerHTML = '';
+
+      let state = null;
+      try {
+        const res = await fetch(`${RAW_URL}?t=${Date.now()}`);
+        if (res.ok) state = await res.json();
+      } catch (e) {
+        console.error('Failed to fetch state.json', e);
+      }
+
+      if (!state || !Array.isArray(state.rows)) {
+        // fallback
+        defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
+        return;
+      }
+
+      // Players
+      document.querySelectorAll('thead th[contenteditable]').forEach((th, i) => {
+        if (state.players && state.players[i] != null) th.textContent = state.players[i];
+      });
+
+      // Rows
+      state.rows.forEach(r => {
+        const tr = createRow(r.location, r.name);
+        tbody.appendChild(tr);
+        r.selections.forEach((sel, pIdx) => {
           if (sel) {
             const cell = tr.querySelector(`td[data-player="${pIdx+1}"]`);
             const wrapper = document.createElement('div');
@@ -156,104 +144,144 @@
             });
             cell.innerHTML = '';
             cell.appendChild(wrapper);
-            // Remove from availableLines
-            availableLines = availableLines.filter(line => line.map(p=>p.name).join(',') !== sel.map(p=>p.name).join(','));
           }
         });
       });
     }
 
-    async function saveState() {
+    /**********************
+     * STEP 5: Save state
+     **********************/
+    function buildState() {
       const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
       const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
+        const location = tr.querySelector('.location-cell').textContent.trim();
         const name = tr.cells[1].textContent.trim();
         const selections = [1,2,3].map(p => {
           const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
           return wrapper
-            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({ name: img.alt, id: Number(img.src.match(/\/(\d+)\.png$/)[1]) }))
+            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({
+                name: img.alt,
+                id: Number(img.src.match(/\/(\d+)\.png$/)[1])
+              }))
             : null;
         });
-        return { name, selections };
+        return { location, name, selections };
       });
-      const state = { players, rows };
-      await fetch(stateFile, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(state)
-      });
+      return { players, rows };
     }
 
+    async function saveState() {
+      const state = buildState();
+      const json = JSON.stringify(state);
+      const stateB64 = btoa(unescape(encodeURIComponent(json)));
+
+      const token = localStorage.getItem('gh_token');
+      if (!token) {
+        alert('No GitHub token stored. Enter it, then click \"Save Token\".');
+        return;
+      }
+
+      const res = await fetch(DISPATCH_URL, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          event_type: 'update-state',
+          client_payload: { state_b64: stateB64 }
+        })
+      });
+
+      if (!res.ok) {
+        console.error(await res.text());
+        alert('Save failed. Check console.');
+      } else {
+        alert('Save triggered. GitHub Action will commit in ~20s. Refresh afterwards.');
+      }
+    }
+
+    // Optional: debounce to auto-save after edits
+    let saveTimer = null;
+    function saveStateDebounced() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveState, 1500);
+    }
+
+    /**********************
+     * STEP 6: Token UI
+     **********************/
+    function storeToken() {
+      const val = document.getElementById('token-input').value.trim();
+      if (val) {
+        localStorage.setItem('gh_token', val);
+        alert('Token saved (locally in this browser).');
+      }
+    }
+
+    /**********************
+     * Evolution chains
+     **********************/
     async function loadEvolutionLines() {
       const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
-      const chains = data.results.map(r => fetch(r.url).then(r=>r.json()));
-      for (const chain of await Promise.all(chains)) {
+      if (!data) return;
+      const chains = await Promise.all(data.results.map(r => fetch(r.url).then(r => r.json())));
+      chains.forEach(chain => {
         const line = [];
-        (function traverse(node){
+        (function traverse(node) {
           const id = Number(node.species.url.match(/\/(\d+)\/$/)[1]);
           line.push({ name: node.species.name, id });
           if (node.evolves_to.length) traverse(node.evolves_to[0]);
         })(chain.chain);
         allLines.push(line);
-      }
+      });
       availableLines = [...allLines];
     }
 
-    function injectRows() {
-      const locations = [
-        "Pallet Town","Viridian City","Pewter City","Cerulean City","Vermilion City","Lavender Town","Celadon City","Fuchsia City","Saffron City","Cinnabar Island",
-        "Route 1","Route 2","Route 3","Route 4","Route 5","Route 6","Route 7","Route 8","Route 9","Route 10","Route 11","Route 12","Route 13","Route 14","Route 15","Route 16","Route 17","Route 18","Route 19","Route 20","Route 21","Route 22","Route 23","Route 24","Route 25",
-        "Mt. Moon","Diglett's Cave","Rock Tunnel","Seafoam Islands","Victory Road"
-      ];
-      const tbody = document.querySelector('#tracker tbody');
-      locations.forEach(loc => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${loc}</td>
-          <td contenteditable="true"></td>
-          <td class="cell" data-player="1"></td>
-          <td class="cell" data-player="2"></td>
-          <td class="cell" data-player="3"></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      injectRows();
-      await loadEvolutionLines();
-      await loadState();
-      // Save on header or name edits
-      document.querySelectorAll('thead th[contenteditable], td[contenteditable]').forEach(el =>
-        el.addEventListener('input', saveState)
-      );
-      // Handle dropdown and selection
-      document.addEventListener('click', e => {
-        const cell = e.target.closest('.cell');
-        if (cell) showDropdown(cell);
-        else if (!e.target.closest('.dropdown')) closeDropdown();
-      });
-    });
-
+    /**********************
+     * Dropdown UI
+     **********************/
     function showDropdown(cell) {
       closeDropdown();
       const rect = cell.getBoundingClientRect();
       const dd = document.createElement('div'); dd.className = 'dropdown';
       dd.style.top = rect.bottom + 'px'; dd.style.left = rect.left + 'px';
-      const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);
-      const list = document.createElement('div'); dd.appendChild(list);
-      function render(filter='') {
+
+      const input = document.createElement('input');
+      input.placeholder = 'Search Pokémon...';
+      dd.appendChild(input);
+
+      const list = document.createElement('div');
+      dd.appendChild(list);
+
+      function render(filter = '') {
         list.innerHTML = '';
-        availableLines.forEach((line,i)=>{
-          const text = line.map(p=>p.name).join(' → ').toLowerCase();
-          if (!filter||text.includes(filter)){
-            const item=document.createElement('div'); item.className='dropdown-item';
-            line.forEach(p=>{const img=document.createElement('img');img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;img.alt=p.name;item.appendChild(img);});
-            const span=document.createElement('span');span.textContent=line.map(p=>p.name).join(' → ');item.appendChild(span);
-            item.onclick=async()=>{
-              const wrapper=document.createElement('div');wrapper.className='selected-line';
-              line.forEach(p=>{const img=document.createElement('img');img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;img.alt=p.name;wrapper.appendChild(img);});
-              cell.innerHTML='';cell.appendChild(wrapper);
-              availableLines.splice(i,1);
+        availableLines.forEach((line, i) => {
+          const text = line.map(p => p.name).join(' → ').toLowerCase();
+          if (!filter || text.includes(filter)) {
+            const item = document.createElement('div'); item.className = 'dropdown-item';
+            line.forEach(p => {
+              const img = document.createElement('img');
+              img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+              img.alt = p.name;
+              item.appendChild(img);
+            });
+            const span = document.createElement('span');
+            span.textContent = line.map(p => p.name).join(' → ');
+            item.appendChild(span);
+            item.onclick = async () => {
+              const wrapper = document.createElement('div'); wrapper.className = 'selected-line';
+              line.forEach(p => {
+                const img = document.createElement('img');
+                img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+                img.alt = p.name;
+                wrapper.appendChild(img);
+              });
+              cell.innerHTML = '';
+              cell.appendChild(wrapper);
+              availableLines.splice(i, 1);
               await saveState();
               closeDropdown();
             };
@@ -261,13 +289,40 @@
           }
         });
       }
-      input.oninput=()=>render(input.value.trim().toLowerCase());
-      render(); document.body.appendChild(dd);
+
+      input.oninput = () => render(input.value.trim().toLowerCase());
+      render();
+      document.body.appendChild(dd);
     }
 
-    function closeDropdown(){
-      const e=document.querySelector('.dropdown'); if(e) e.remove();
+    function closeDropdown() {
+      const e = document.querySelector('.dropdown');
+      if (e) e.remove();
     }
+
+    /**********************
+     * Init
+     **********************/
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('save-token-btn').addEventListener('click', storeToken);
+      document.getElementById('refresh-btn').addEventListener('click', loadState);
+      document.getElementById('save-state-btn').addEventListener('click', saveState);
+
+      await loadEvolutionLines();
+      await loadState();
+
+      document.getElementById('add-row-btn').addEventListener('click', async () => {
+        const tr = createRow('', '');
+        document.querySelector('#tracker tbody').appendChild(tr);
+        await saveState();
+      });
+
+      document.addEventListener('click', e => {
+        const cell = e.target.closest('.cell');
+        if (cell) showDropdown(cell);
+        else if (!e.target.closest('.dropdown')) closeDropdown();
+      });
+    });
   </script>
 </body>
 </html>
