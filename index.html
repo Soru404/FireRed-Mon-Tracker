@@ -51,8 +51,6 @@
     <div class="container">
       <h1>Pokémon FireRed Tracker</h1><!-- Token controls if the user wants to update it later -->
   <div id="controls">
-    <input id="token-input" type="password" placeholder="GitHub PAT (repo contents:rw)" />
-    <button id="save-token-btn">Save Token</button>
     <button id="refresh-btn">Refresh</button>
     <button id="save-state-btn">Save State</button>
   </div>
@@ -123,15 +121,9 @@
     loginToken.addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
 
     /************ UI CONTROLS ************/
-    const tokenInput      = document.getElementById('token-input');
-    const saveTokenBtn    = document.getElementById('save-token-btn');
     const refreshBtn      = document.getElementById('refresh-btn');
     const saveStateBtn    = document.getElementById('save-state-btn');
 
-    saveTokenBtn.addEventListener('click', () => {
-      const t = tokenInput.value.trim();
-      if (t) { localStorage.setItem('gh_token', t); alert('Token saved locally.'); }
-    });
     refreshBtn.addEventListener('click', loadState);
     saveStateBtn.addEventListener('click', saveState);
 
@@ -164,7 +156,7 @@
         if (res.ok) state = await res.json();
       } catch(e){ console.error('Failed to fetch state.json', e); }
 
-      if (!state || !Array.isArray(state.rows)) {
+      if (!state || !Array.isArray(state.rows) || state.rows.length === 0) {
         defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
         return;
       }
