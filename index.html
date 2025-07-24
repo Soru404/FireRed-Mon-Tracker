@@ -228,7 +228,7 @@
         body: JSON.stringify({ event_type: 'update-state', client_payload: { state_b64: stateB64 } })
       });
       if (!res.ok) { console.error(await res.text()); alert('Save failed. Check console.'); }
-      else { alert('Save triggered. Refresh after ~20s.'); }
+      else { alert('Saved. May take up to 20 seconds.'); }
     }
 
     
