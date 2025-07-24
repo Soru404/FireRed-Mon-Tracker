@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Pokémon FireRed Tracker</title>
@@ -22,20 +23,21 @@
     .dropdown-item:hover { background: #eee; }
     .dropdown-item img { width: 32px; height: 32px; margin-right: 6px; }
     .selected-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; }
-    .selected-line img { width: 24px; height: 24px; }/* Login overlay */
-#login-screen { position: fixed; inset: 0; background: #1e1e2f; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; z-index: 9999; }
-#login-box { background: rgba(255,255,255,0.1); padding: 32px 28px; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
-#login-box h2 { margin-top: 0; text-align: center; }
-#login-box input { width: 100%; padding: 10px 12px; border-radius: 6px; border: none; margin: 8px 0 16px; box-sizing: border-box; }
-#login-box button { width: 100%; padding: 10px 12px; border: none; border-radius: 6px; background: #4CAF50; color: #fff; cursor: pointer; font-size: 15px; }
-#login-box button:hover { background: #45a049; }
-#login-error { color: #ff8a8a; font-size: 13px; height: 16px; margin-bottom: 8px; text-align: center; }
+    .selected-line img { width: 24px; height: 24px; }
 
-#controls { margin:16px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-#controls input[type="password"] { padding:6px; flex:1; min-width:220px; }
-#controls button { padding:6px 12px; }
-#save-state-btn { background:#4CAF50; color:#fff; border:none; border-radius:4px; }
+    /* Login overlay */
+    #login-screen { position: fixed; inset: 0; background: #1e1e2f; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; z-index: 9999; }
+    #login-box { background: rgba(255,255,255,0.1); padding: 32px 28px; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+    #login-box h2 { margin-top: 0; text-align: center; }
+    #login-box input { width: 100%; padding: 10px 12px; border-radius: 6px; border: none; margin: 8px 0 16px; box-sizing: border-box; }
+    #login-box button { width: 100%; padding: 10px 12px; border: none; border-radius: 6px; background: #4CAF50; color: #fff; cursor: pointer; font-size: 15px; }
+    #login-box button:hover { background: #45a049; }
+    #login-error { color: #ff8a8a; font-size: 13px; height: 16px; margin-bottom: 8px; text-align: center; }
 
+    #controls { margin:16px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    #controls input[type="password"] { padding:6px; flex:1; min-width:220px; }
+    #controls button { padding:6px 12px; }
+    #save-state-btn { background:#4CAF50; color:#fff; border:none; border-radius:4px; }
   </style>
 </head>
 <body>
@@ -47,30 +49,36 @@
       <input id="login-token" type="password" placeholder="ghp_..." autocomplete="off" />
       <button id="login-btn">Continue</button>
     </div>
-  </div>  <!-- App -->  <div id="app" style="display:none;">
-    <div class="container">
-      <h1>Pokémon FireRed Tracker</h1><!-- Token controls if the user wants to update it later -->
-  <div id="controls">
-    <button id="refresh-btn">Refresh</button>
-    <button id="save-state-btn">Save State</button>
   </div>
 
-  <table id="tracker">
-    <thead>
-      <tr>
-        <th>Location</th>
-        <th>Name</th>
-        <th contenteditable="true">Player 1</th>
-        <th contenteditable="true">Player 2</th>
-        <th contenteditable="true">Player 3</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="add-row-btn">Add Row</button>
-</div>
+  <!-- App -->
+  <div id="app" style="display:none;">
+    <div class="container">
+      <h1>Pokémon FireRed Tracker</h1>
 
-  </div>  <script type="module">
+      <!-- Token controls if the user wants to update it later -->
+      <div id="controls">
+        <button id="refresh-btn">Refresh</button>
+        <button id="save-state-btn">Save State</button>
+      </div>
+
+      <table id="tracker">
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>Name</th>
+            <th contenteditable="true">Player 1</th>
+            <th contenteditable="true">Player 2</th>
+            <th contenteditable="true">Player 3</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="add-row-btn">Add Row</button>
+    </div>
+  </div>
+
+  <script type="module">
     /************ CONFIG ************/
     const OWNER  = 'Soru404';
     const REPO   = 'FireRed-Mon-Tracker';
@@ -154,11 +162,18 @@
       try {
         const res = await fetch(`${RAW_URL}?t=${Date.now()}`);
         if (res.ok) state = await res.json();
+        console.log('Loaded state:', state);
       } catch(e){ console.error('Failed to fetch state.json', e); }
 
-      if (!state || !Array.isArray(state.rows) || state.rows.length === 0) {
+      if (!state || typeof state !== 'object') {
+        console.warn('No valid state object. Using defaults.');
         defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
         return;
+      }
+
+      if (!Array.isArray(state.rows)) {
+        console.warn('state.rows is not an array. Rendering with empty rows.');
+        state.rows = [];
       }
 
       document.querySelectorAll('thead th[contenteditable]').forEach((th, i) => {
@@ -291,5 +306,6 @@
         if (!ok) showLogin(); else await initApp();
       }
     })();
-  </script></body>
+  </script>
+</body>
 </html>
