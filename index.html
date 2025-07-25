@@ -261,22 +261,51 @@ async function saveState() {
 }
 
 // Helper: Fetch all varieties for a species and return as {name, id, formName, sprite, uniqueId}
+// Known regional form keywords
+const REGIONAL_KEYWORDS = [
+  'alolan',
+  'galarian',
+  'hisuian',
+  'paldean',
+  'johtoian',
+  'kantonian',
+  'sinnohan',
+  'unovan',
+  'kalosian',
+  'megian', // rarely used
+  'galardian' // typo safety
+  // Add more if new gens appear
+];
+
+function isRegionalForm(name, speciesName) {
+  if (name === speciesName) return false;
+  return REGIONAL_KEYWORDS.some(region => name.includes(region));
+}
+
 async function getVarietiesForSpecies(speciesUrl) {
   const species = await fetchJSON(speciesUrl);
   if (!species) return [];
 
-  // Each variety is a unique form (default, Alolan, Galarian, Hisuian, etc)
-  const varieties = await Promise.all(species.varieties.map(async v => {
+  // Only keep default and regional forms
+  const relevantVarieties = species.varieties.filter(v =>
+    v.is_default ||
+    isRegionalForm(v.pokemon.name, species.name)
+  );
+
+  const varieties = await Promise.all(relevantVarieties.map(async v => {
     const poke = await fetchJSON(v.pokemon.url);
-    // Find a readable form name (default, galarian, etc)
+    // Derive readable form name
     let formName = '';
     if (v.pokemon.name !== species.name) {
-      // e.g. galarian-zigzagoon, alolan-meowth, etc
-      formName = v.pokemon.name.replace(species.name, '').replace(/^-/, '').replace(/-/g, ' ');
+      for (const region of REGIONAL_KEYWORDS) {
+        if (v.pokemon.name.startsWith(region + '-')) {
+          formName = region.charAt(0).toUpperCase() + region.slice(1);
+          break;
+        }
+      }
     }
     // Use a unique ID for form (species id * 10 + index of variety)
-    // so regular zigzagoon is e.g. 2630, galarian is 2631, etc
-    const uniqueId = species.id * 10 + species.varieties.findIndex(f => f.pokemon.name === v.pokemon.name);
+    const uniqueId = species.id * 10 + relevantVarieties.findIndex(f => f.pokemon.name === v.pokemon.name);
     return {
       name: formName ? `${formName} ${species.name}` : species.name,
       id: poke.id,
