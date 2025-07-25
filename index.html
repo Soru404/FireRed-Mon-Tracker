@@ -93,6 +93,7 @@
       "Mt. Moon","Diglett's Cave","Rock Tunnel","Seafoam Islands","Victory Road"
     ];
     let allLines = [], availableLines = [];
+    let selectedPokemonIds = new Set();
 
     /************ LOGIN LOGIC ************/
     const loginScreen = document.getElementById('login-screen');
@@ -135,6 +136,21 @@
     refreshBtn.addEventListener('click', loadState);
     saveStateBtn.addEventListener('click', saveState); // Only explicit saves now
 
+    /************ STATE TRACKING FOR POKEMON SELECTION ************/
+    function updateSelectedPokemonIdsFromTable() {
+      selectedPokemonIds.clear();
+      document.querySelectorAll('.selected-line img').forEach(img => {
+        const id = Number(img.src.match(/\/(\d+)\.png$/)[1]);
+        selectedPokemonIds.add(id);
+      });
+    }
+
+    function filterAvailableLines() {
+      availableLines = allLines.filter(line =>
+        line.every(poke => !selectedPokemonIds.has(poke.id))
+      );
+    }
+
     /************ CORE FUNCTIONS ************/
     function createRow(location = '', name = '') {
       const isDefault = defaultLocations.includes(location);
@@ -168,6 +184,8 @@
       if (!state || typeof state !== 'object') {
         console.warn('No valid state object. Using defaults.');
         defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
+        updateSelectedPokemonIdsFromTable();
+        filterAvailableLines();
         return;
       }
 
@@ -195,6 +213,9 @@
           }
         });
       });
+
+      updateSelectedPokemonIdsFromTable();
+      filterAvailableLines();
     }
 
     function buildState() {
@@ -231,8 +252,6 @@
       else { alert('Saved. May take up to 20 seconds.'); }
     }
 
-
-
     async function loadEvolutionLines() {
       const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
       if (!data) return;
@@ -246,7 +265,6 @@
         })(chain.chain);
         allLines.push(line);
       });
-      availableLines = [...allLines];
       // --- Add one evolution line for each Eevee evolution ---
       (function addEeveeLines(){
         const eeveeId = 133;
@@ -264,8 +282,8 @@
         evoMap.forEach(evo => {
           allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
         });
-        availableLines = [...allLines];
       })();
+      filterAvailableLines();
     }
 
     function showDropdown(cell) {
@@ -281,14 +299,21 @@
           const text=line.map(p=>p.name).join(' → ').toLowerCase();
           if(!filter||text.includes(filter)){
             const item=document.createElement('div'); item.className='dropdown-item';
-            line.forEach(p=>{const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; item.appendChild(img);});
+            line.forEach(p=>{
+              const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; item.appendChild(img);
+            });
             const span=document.createElement('span'); span.textContent=line.map(p=>p.name).join(' → '); item.appendChild(span);
             item.onclick=async()=>{
-              const wrapper=document.createElement('div'); wrapper.className='selected-line';
-              line.forEach(p=>{const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);});
+              const wrapper=document.createElement('div'); wrapper.className = 'selected-line';
+              line.forEach(p=>{
+                const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);
+              });
               cell.innerHTML=''; cell.appendChild(wrapper);
-              availableLines.splice(i,1);
-              closeDropdown(); // Manual save only via button
+
+              // Update selections and filter available lines after selection
+              updateSelectedPokemonIdsFromTable();
+              filterAvailableLines();
+              closeDropdown();
             };
             list.appendChild(item);
           }
