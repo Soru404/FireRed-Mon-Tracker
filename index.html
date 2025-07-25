@@ -12,7 +12,8 @@
     thead th[contenteditable] { color: #000; }
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
     tbody tr:hover { background-color: #f1f1f1; }
-    th, td { border: 1px solid #ddd; text-align: center; padding: 12px; }
+    th, td { border: 1px solid #ddd; text-align: center; padding: 12px; /* Increased padding for larger cells */ }
+    th, td { border: 1px solid #ddd; text-align: center; padding: 6px; /* Increased padding for larger cells */ }
     td.location-cell { text-align: left; font-weight: 600; background-color: #fcfcfc; width: 200px; }
     th[contenteditable], td[contenteditable] { background: #eef; cursor: text; }
     #add-row-btn { padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
@@ -21,10 +22,12 @@
     .dropdown input { width: 100%; padding: 4px; margin-bottom: 6px; box-sizing: border-box; }
     .dropdown-item { display: flex; align-items: center; padding: 4px; cursor: pointer; }
     .dropdown-item:hover { background: #eee; }
-    .dropdown-item img { width: 48px; height: 48px; margin-right: 8px; }
+    .dropdown-item img { width: 48px; height: 48px; margin-right: 8px; } /* Larger icons in dropdown */
     .selected-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
-    .selected-line img { width: 48px; height: 48px; }
+    .selected-line img { width: 48px; height: 48px; } /* Larger selected Pokémon icons */
+    .selected-line img { width: 64px; height: 64px; } /* Larger selected Pokémon icons */
 
+    /* Login overlay */
     #login-screen { position: fixed; inset: 0; background: #1e1e2f; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; z-index: 9999; }
     #login-box { background: rgba(255,255,255,0.1); padding: 32px 28px; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
     #login-box h2 { margin-top: 0; text-align: center; }
@@ -54,10 +57,13 @@
   <div id="app" style="display:none;">
     <div class="container">
       <h1>Pokémon FireRed Tracker</h1>
+
+      <!-- Token controls if the user wants to update it later -->
       <div id="controls">
         <button id="refresh-btn">Refresh</button>
         <button id="save-state-btn">Save</button>
       </div>
+
       <table id="tracker">
         <thead>
           <tr>
@@ -75,21 +81,14 @@
   </div>
 
   <script type="module">
-    const REGIONAL_KEYWORDS = [
-      'alolan','galarian','hisuian','paldean','johtoian','kantonian','sinnohan','unovan','kalosian','alola-','galar-'
-    ];
-
-    function isRegionalForm(name, speciesName) {
-      // e.g. galarian-zigzagoon
-      return REGIONAL_KEYWORDS.some(region => name.startsWith(region + '-'));
-    }
-
+    /************ CONFIG ************/
     const OWNER  = 'Soru404';
     const REPO   = 'FireRed-Mon-Tracker';
     const BRANCH = 'main';
     const RAW_URL      = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/state.json`;
     const DISPATCH_URL = `https://api.github.com/repos/${OWNER}/${REPO}/dispatches`;
 
+    /************ DATA ************/
     const defaultLocations = [
       "Pallet Town","Viridian City","Pewter City","Cerulean City","Vermilion City","Lavender Town","Celadon City","Fuchsia City","Saffron City","Cinnabar Island",
       "Route 1","Route 2","Route 3","Route 4","Route 5","Route 6","Route 7","Route 8","Route 9","Route 10","Route 11","Route 12","Route 13","Route 14","Route 15","Route 16","Route 17","Route 18","Route 19","Route 20","Route 21","Route 22","Route 23","Route 24","Route 25",
@@ -98,6 +97,7 @@
     let allLines = [], availableLines = [];
     let selectedPokemonIds = new Set();
 
+    /************ LOGIN LOGIC ************/
     const loginScreen = document.getElementById('login-screen');
     const loginToken  = document.getElementById('login-token');
     const loginBtn    = document.getElementById('login-btn');
@@ -131,26 +131,29 @@
     loginBtn.addEventListener('click', attemptLogin);
     loginToken.addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
 
+    /************ UI CONTROLS ************/
     const refreshBtn      = document.getElementById('refresh-btn');
     const saveStateBtn    = document.getElementById('save-state-btn');
 
     refreshBtn.addEventListener('click', loadState);
-    saveStateBtn.addEventListener('click', saveState);
+    saveStateBtn.addEventListener('click', saveState); // Only explicit saves now
 
+    /************ STATE TRACKING FOR POKEMON SELECTION ************/
     function updateSelectedPokemonIdsFromTable() {
       selectedPokemonIds.clear();
       document.querySelectorAll('.selected-line img').forEach(img => {
-        const id = Number(img.dataset.uniqueid || img.src.match(/\/(\d+)\.png$/)?.[1]);
-        if (id) selectedPokemonIds.add(id);
+        const id = Number(img.src.match(/\/(\d+)\.png$/)[1]);
+        selectedPokemonIds.add(id);
       });
     }
 
     function filterAvailableLines() {
       availableLines = allLines.filter(line =>
-        line.every(poke => !selectedPokemonIds.has(poke.uniqueId))
+        line.every(poke => !selectedPokemonIds.has(poke.id))
       );
     }
 
+    /************ CORE FUNCTIONS ************/
     function createRow(location = '', name = '') {
       const isDefault = defaultLocations.includes(location);
       const locAttr = isDefault ? '' : ' contenteditable';
@@ -162,6 +165,7 @@
         <td class="cell" data-player="2"></td>
         <td class="cell" data-player="3"></td>
       `;
+      // Autosave removed to prevent collisions
       return tr;
     }
 
@@ -204,11 +208,7 @@
             const cell = tr.querySelector(`td[data-player="${pIdx+1}"]`);
             const wrapper = document.createElement('div'); wrapper.className = 'selected-line';
             sel.forEach(poke => {
-              const img = document.createElement('img');
-              img.alt = poke.name;
-              img.src = poke.sprite;
-              img.dataset.uniqueid = poke.uniqueId;
-              wrapper.appendChild(img);
+              const img = document.createElement('img'); img.alt = poke.name; img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`; wrapper.appendChild(img);
             });
             cell.innerHTML = '';
             cell.appendChild(wrapper);
@@ -228,11 +228,7 @@
         const selections = [1,2,3].map(p => {
           const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
           return wrapper
-            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({
-                name: img.alt,
-                uniqueId: Number(img.dataset.uniqueid),
-                sprite: img.src
-              }))
+            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({ name: img.alt, id: Number(img.src.match(/\/(\d+)\.png$/)[1]) }))
             : null;
         });
         return { location, name, selections };
@@ -258,71 +254,37 @@
       else { alert('Saved. May take up to 20 seconds.'); }
     }
 
-    // Only allow default and regional varieties
-    async function getVarietiesForSpecies(speciesUrl) {
-      const species = await fetchJSON(speciesUrl);
-      if (!species) return [];
-
-      // Only keep default and regional forms
-      const relevantVarieties = species.varieties.filter(v =>
-        v.is_default || isRegionalForm(v.pokemon.name, species.name)
-      );
-      const varieties = await Promise.all(relevantVarieties.map(async v => {
-        const poke = await fetchJSON(v.pokemon.url);
-        let formName = '';
-        for (const region of REGIONAL_KEYWORDS) {
-          if (v.pokemon.name.startsWith(region + '-')) {
-            formName = region.charAt(0).toUpperCase() + region.slice(1);
-            break;
-          }
-        }
-        // uniqueId: species.id * 10 + index in varieties
-        const uniqueId = species.id * 10 + relevantVarieties.findIndex(f => f.pokemon.name === v.pokemon.name);
-        return {
-          name: formName ? `${formName} ${species.name}` : species.name,
-          id: poke.id,
-          formName,
-          sprite: poke.sprites.front_default,
-          uniqueId
-        };
-      }));
-      return varieties;
-    }
-
-    // Recursively build all possible evolution lines for each form
-    async function buildEvolutionLines(chain, currentLines = [[]]) {
-      // For this step, get all varieties of this species
-      const varieties = await getVarietiesForSpecies(chain.species.url);
-      let newLines = [];
-      for (const line of currentLines) {
-        for (const variety of varieties) {
-          newLines.push([...line, variety]);
-        }
-      }
-      if (chain.evolves_to && chain.evolves_to.length > 0) {
-        for (const evo of chain.evolves_to) {
-          await buildEvolutionLines(evo, newLines);
-        }
-      } else {
-        // End of chain; push all lines
-        allLines.push(...newLines);
-      }
-    }
-
     async function loadEvolutionLines() {
-      allLines = [];
-      availableLines = [];
-      const evoApi = 'https://pokeapi.co/api/v2/evolution-chain?limit=10000';
-      const data = await fetchJSON(evoApi);
+      const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
       if (!data) return;
-      // For demo/dev, you may want to limit this number to avoid huge load times!
-      // Remove .slice(0, N) to get all chains for production
-      for (const chainObj of data.results) {
-        const evoChain = await fetchJSON(chainObj.url);
-        if (evoChain && evoChain.chain) {
-          await buildEvolutionLines(evoChain.chain);
-        }
-      }
+      const chains = await Promise.all(data.results.map(r => fetch(r.url).then(r => r.json())));
+      chains.forEach(chain => {
+        const line = [];
+        (function traverse(node){
+          const id = Number(node.species.url.match(/\/(\d+)\/$/)[1]);
+          line.push({ name: node.species.name, id });
+          if (node.evolves_to.length) traverse(node.evolves_to[0]);
+        })(chain.chain);
+        allLines.push(line);
+      });
+      // --- Add one evolution line for each Eevee evolution ---
+      (function addEeveeLines(){
+        const eeveeId = 133;
+        const eeveeName = 'eevee';
+        const evoMap = [
+          { name: 'vaporeon', id: 134 },
+          { name: 'jolteon',  id: 135 },
+          { name: 'flareon',  id: 136 },
+          { name: 'espeon',   id: 196 },
+          { name: 'umbreon',  id: 197 },
+          { name: 'leafeon',  id: 470 },
+          { name: 'glaceon',  id: 471 },
+          { name: 'sylveon',  id: 700 }
+        ];
+        evoMap.forEach(evo => {
+          allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
+        });
+      })();
       filterAvailableLines();
     }
 
@@ -340,21 +302,17 @@
           if(!filter||text.includes(filter)){
             const item=document.createElement('div'); item.className='dropdown-item';
             line.forEach(p=>{
-              const img=document.createElement('img');
-              img.src=p.sprite;
-              img.alt=p.name;
-              img.dataset.uniqueid=p.uniqueId;
-              item.appendChild(img);
+              const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; item.appendChild(img);
             });
             const span=document.createElement('span'); span.textContent=line.map(p=>p.name).join(' → '); item.appendChild(span);
             item.onclick=async()=>{
               const wrapper=document.createElement('div'); wrapper.className = 'selected-line';
               line.forEach(p=>{
-                const img=document.createElement('img');
-                img.src=p.sprite; img.alt=p.name; img.dataset.uniqueid=p.uniqueId;
-                wrapper.appendChild(img);
+                const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);
               });
               cell.innerHTML=''; cell.appendChild(wrapper);
+
+              // Update selections and filter available lines after selection
               updateSelectedPokemonIdsFromTable();
               filterAvailableLines();
               closeDropdown();
@@ -376,6 +334,7 @@
       document.getElementById('add-row-btn').addEventListener('click', async ()=>{
         const tr = createRow('', '');
         document.querySelector('#tracker tbody').appendChild(tr);
+        // Manual save only via button
       });
       document.addEventListener('click', e => {
         const cell = e.target.closest('.cell');
