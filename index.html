@@ -254,39 +254,52 @@
       else { alert('Saved. May take up to 20 seconds.'); }
     }
 
-    async function loadEvolutionLines() {
-      const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
-      if (!data) return;
-      const chains = await Promise.all(data.results.map(r => fetch(r.url).then(r => r.json())));
-      chains.forEach(chain => {
-        const line = [];
-        (function traverse(node){
-          const id = Number(node.species.url.match(/\/(\d+)\/$/)[1]);
-          line.push({ name: node.species.name, id });
-          if (node.evolves_to.length) traverse(node.evolves_to[0]);
-        })(chain.chain);
-        allLines.push(line);
-      });
-      // --- Add one evolution line for each Eevee evolution ---
-      (function addEeveeLines(){
-        const eeveeId = 133;
-        const eeveeName = 'eevee';
-        const evoMap = [
-          { name: 'vaporeon', id: 134 },
-          { name: 'jolteon',  id: 135 },
-          { name: 'flareon',  id: 136 },
-          { name: 'espeon',   id: 196 },
-          { name: 'umbreon',  id: 197 },
-          { name: 'leafeon',  id: 470 },
-          { name: 'glaceon',  id: 471 },
-          { name: 'sylveon',  id: 700 }
-        ];
-        evoMap.forEach(evo => {
-          allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
-        });
-      })();
-      filterAvailableLines();
-    }
+async function loadEvolutionLines() {
+  // Fetch from PokeAPI (existing logic)
+  const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
+  if (!data) return;
+  const chains = await Promise.all(data.results.map(r => fetch(r.url).then(r => r.json())));
+  chains.forEach(chain => {
+    const line = [];
+    (function traverse(node){
+      const id = Number(node.species.url.match(/\/(\d+)\/$/)[1]);
+      line.push({ name: node.species.name, id });
+      if (node.evolves_to.length) traverse(node.evolves_to[0]);
+    })(chain.chain);
+    allLines.push(line);
+  });
+
+  // Eevee logic (existing)
+  (function addEeveeLines(){
+    const eeveeId = 133;
+    const eeveeName = 'eevee';
+    const evoMap = [
+      { name: 'vaporeon', id: 134 },
+      { name: 'jolteon',  id: 135 },
+      { name: 'flareon',  id: 136 },
+      { name: 'espeon',   id: 196 },
+      { name: 'umbreon',  id: 197 },
+      { name: 'leafeon',  id: 470 },
+      { name: 'glaceon',  id: 471 },
+      { name: 'sylveon',  id: 700 }
+    ];
+    evoMap.forEach(evo => {
+      allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
+    });
+  })();
+
+  // --- Additional logic to fetch from additional-lines.json ---
+  const additionalLines = await fetchJSON(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/additional-lines.json`);
+  if (Array.isArray(additionalLines)) {
+    additionalLines.forEach(line => {
+      // Assume each line is an array of objects: [{name, id}, ...]
+      if (Array.isArray(line)) allLines.push(line);
+    });
+  }
+  // -----------------------------------------------------------
+
+  filterAvailableLines();
+}
 
     function showDropdown(cell) {
       closeDropdown();
