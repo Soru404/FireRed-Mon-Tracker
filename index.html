@@ -45,6 +45,7 @@
       <tbody></tbody>
     </table>
     <button id="add-row-btn">Add Row</button>
+    <button id="save-btn">Save</button>
   </div>
   <script>
     const defaultLocations = [
@@ -53,6 +54,7 @@
       "Mt. Moon","Diglett's Cave","Rock Tunnel","Seafoam Islands","Victory Road"
     ];
     let allLines = [], availableLines = [];
+    const RAW_URL = 'state.json'; // local fallback or replace with remote URL
 
     function createRow(location = '', name = '') {
       const isDefault = defaultLocations.includes(location);
@@ -132,7 +134,7 @@
       });
     }
 
-    // --------------------async function saveState() {
+    async function saveState() {
       const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
       const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
         const location = tr.querySelector('.location-cell').textContent.trim();
@@ -175,12 +177,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('save-btn').addEventListener('click', async () => { await saveState(); });
       await loadEvolutionLines();
       await loadState();
-      document.getElementById('add-row-btn').addEventListener('click', async () => {
+      document.getElementById('add-row-btn').addEventListener('click', () => {
         const tr = createRow('', '');
         document.querySelector('#tracker tbody').appendChild(tr);
-        await saveState();
+        // No auto-save; press Save to commit changes
+      });
+        document.querySelector('#tracker tbody').appendChild(tr);
+        // save manually via Save button
       });
       document.addEventListener('click', e => {
         const cell = e.target.closest('.cell');
@@ -215,7 +221,7 @@
               cell.innerHTML = '';
               cell.appendChild(wrapper);
               availableLines.splice(i, 1);
-              await saveState();
+              // save manually via Save button
               closeDropdown();
             };
             list.appendChild(item);
