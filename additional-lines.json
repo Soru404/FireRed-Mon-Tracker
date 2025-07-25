@@ -1,0 +1,135 @@
+[
+  [
+    { "name": "alolan-geodude", "id": 10071 },
+    { "name": "alolan-graveler", "id": 10072 },
+    { "name": "alolan-golem", "id": 10073 }
+  ],
+  [
+    { "name": "alolan-sandshrew", "id": 10079 },
+    { "name": "alolan-sandslash", "id": 10080 }
+  ],
+  [
+    { "name": "alolan-vulpix", "id": 10081 },
+    { "name": "alolan-ninetales", "id": 10082 }
+  ],
+  [
+    { "name": "alolan-diglett", "id": 10083 },
+    { "name": "alolan-dugtrio", "id": 10084 }
+  ],
+  [
+    { "name": "alolan-meowth", "id": 10085 },
+    { "name": "alolan-persian", "id": 10086 }
+  ],
+  [
+    { "name": "alolan-geodude", "id": 10071 },
+    { "name": "alolan-graveler", "id": 10072 },
+    { "name": "alolan-golem", "id": 10073 }
+  ],
+  [
+    { "name": "alolan-grimer", "id": 10111 },
+    { "name": "alolan-muk", "id": 10112 }
+  ],
+  [
+    { "name": "alolan-exeggcute", "id": 10231 },
+    { "name": "alolan-exeggutor", "id": 10113 }
+  ],
+  [
+    { "name": "alolan-marowak", "id": 10114 }
+  ],
+  [
+    { "name": "galarian-meowth", "id": 10135 },
+    { "name": "perrserker", "id": 10136 }
+  ],
+  [
+    { "name": "galarian-ponyta", "id": 10137 },
+    { "name": "galarian-rapidash", "id": 10138 }
+  ],
+  [
+    { "name": "galarian-slowpoke", "id": 10139 },
+    { "name": "galarian-slowbro", "id": 10140 },
+    { "name": "galarian-slowking", "id": 10141 }
+  ],
+  [
+    { "name": "galarian-farfetchd", "id": 10142 },
+    { "name": "sirfetchd", "id": 10143 }
+  ],
+  [
+    { "name": "galarian-weezing", "id": 10144 }
+  ],
+  [
+    { "name": "galarian-mr-mime", "id": 10145 },
+    { "name": "galarian-mr-rime", "id": 10146 }
+  ],
+  [
+    { "name": "galarian-corsola", "id": 10147 },
+    { "name": "cursola", "id": 10148 }
+  ],
+  [
+    { "name": "galarian-zigzagoon", "id": 10149 },
+    { "name": "galarian-linoone", "id": 10150 },
+    { "name": "obstagoon", "id": 10151 }
+  ],
+  [
+    { "name": "galarian-darumaka", "id": 10152 },
+    { "name": "galarian-darmanitan", "id": 10153 }
+  ],
+  [
+    { "name": "galarian-yamask", "id": 10154 },
+    { "name": "runerigus", "id": 10155 }
+  ],
+  [
+    { "name": "galarian-stunfisk", "id": 10156 }
+  ],
+  [
+    { "name": "hisuian-growlithe", "id": 10200 },
+    { "name": "hisuian-arcanine", "id": 10201 }
+  ],
+  [
+    { "name": "hisuian-voltorb", "id": 10202 },
+    { "name": "hisuian-electrode", "id": 10203 }
+  ],
+  [
+    { "name": "hisuian-typhlosion", "id": 10204 }
+  ],
+  [
+    { "name": "hisuian-qwilfish", "id": 10205 },
+    { "name": "overqwil", "id": 10206 }
+  ],
+  [
+    { "name": "hisuian-sneasel", "id": 10207 },
+    { "name": "sneasler", "id": 10208 }
+  ],
+  [
+    { "name": "hisuian-samurott", "id": 10209 }
+  ],
+  [
+    { "name": "hisuian-lilligant", "id": 10210 }
+  ],
+  [
+    { "name": "hisuian-zorua", "id": 10211 },
+    { "name": "hisuian-zoroark", "id": 10212 }
+  ],
+  [
+    { "name": "hisuian-braviary", "id": 10213 }
+  ],
+  [
+    { "name": "hisuian-sliggoo", "id": 10214 },
+    { "name": "hisuian-goodra", "id": 10215 }
+  ],
+  [
+    { "name": "hisuian-avalugg", "id": 10216 }
+  ],
+  [
+    { "name": "hisuian-decidueye", "id": 10217 }
+  ],
+  [
+    { "name": "paldean-wooper", "id": 10227 },
+    { "name": "clodsire", "id": 10228 }
+  ],
+  [
+    { "name": "paldean-tauros-aqua-breed", "id": 10229 }
+  ],
+  [
+    { "name": "paldean-tauros-blaze-breed", "id": 10230 }
+  ]
+]
