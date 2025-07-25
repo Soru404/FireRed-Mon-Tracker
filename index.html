@@ -79,276 +79,321 @@
   </div>
 
   <script type="module">
-    /************ CONFIG ************/
-    const OWNER  = 'Soru404';
-    const REPO   = 'FireRed-Mon-Tracker';
-    const BRANCH = 'main';
-    const RAW_URL      = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/state.json`;
-    const DISPATCH_URL = `https://api.github.com/repos/${OWNER}/${REPO}/dispatches`;
+/************ CONFIG ************/
+const OWNER  = 'Soru404';
+const REPO   = 'FireRed-Mon-Tracker';
+const BRANCH = 'main';
+const RAW_URL      = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/state.json`;
+const DISPATCH_URL = `https://api.github.com/repos/${OWNER}/${REPO}/dispatches`;
 
-    /************ DATA ************/
-    const defaultLocations = [
-      "Pallet Town","Viridian City","Pewter City","Cerulean City","Vermilion City","Lavender Town","Celadon City","Fuchsia City","Saffron City","Cinnabar Island",
-      "Route 1","Route 2","Route 3","Route 4","Route 5","Route 6","Route 7","Route 8","Route 9","Route 10","Route 11","Route 12","Route 13","Route 14","Route 15","Route 16","Route 17","Route 18","Route 19","Route 20","Route 21","Route 22","Route 23","Route 24","Route 25",
-      "Mt. Moon","Diglett's Cave","Rock Tunnel","Seafoam Islands","Victory Road"
-    ];
-    let allLines = [], availableLines = [];
-    let selectedPokemonIds = new Set();
+/************ DATA ************/
+const defaultLocations = [
+  "Pallet Town","Viridian City","Pewter City","Cerulean City","Vermilion City","Lavender Town","Celadon City","Fuchsia City","Saffron City","Cinnabar Island",
+  "Route 1","Route 2","Route 3","Route 4","Route 5","Route 6","Route 7","Route 8","Route 9","Route 10","Route 11","Route 12","Route 13","Route 14","Route 15","Route 16","Route 17","Route 18","Route 19","Route 20","Route 21","Route 22","Route 23","Route 24","Route 25",
+  "Mt. Moon","Diglett's Cave","Rock Tunnel","Seafoam Islands","Victory Road"
+];
+let allLines = [], availableLines = [];
+let selectedPokemonIds = new Set();
 
-    /************ LOGIN LOGIC ************/
-    const loginScreen = document.getElementById('login-screen');
-    const loginToken  = document.getElementById('login-token');
-    const loginBtn    = document.getElementById('login-btn');
-    const loginError  = document.getElementById('login-error');
-    const appDiv      = document.getElementById('app');
+/************ LOGIN LOGIC ************/
+const loginScreen = document.getElementById('login-screen');
+const loginToken  = document.getElementById('login-token');
+const loginBtn    = document.getElementById('login-btn');
+const loginError  = document.getElementById('login-error');
+const appDiv      = document.getElementById('app');
 
-    function showLogin() { loginScreen.style.display = 'flex'; appDiv.style.display = 'none'; }
-    function showApp()   { loginScreen.style.display = 'none'; appDiv.style.display = 'block'; }
+function showLogin() { loginScreen.style.display = 'flex'; appDiv.style.display = 'none'; }
+function showApp()   { loginScreen.style.display = 'none'; appDiv.style.display = 'block'; }
 
-    async function validateToken(token) {
-      try {
-        const res = await fetch('https://api.github.com/rate_limit', {
-          headers: { 'Authorization': `Bearer ${token}` }
+async function validateToken(token) {
+  try {
+    const res = await fetch('https://api.github.com/rate_limit', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function attemptLogin() {
+  const token = loginToken.value.trim();
+  if (!token) { loginError.textContent = 'Please paste your token.'; return; }
+  loginError.textContent = 'Checking token...';
+  const ok = await validateToken(token);
+  if (!ok) { loginError.textContent = 'Invalid token. Check permissions (repo contents: rw).'; return; }
+  localStorage.setItem('gh_token', token);
+  loginError.textContent = '';
+  loginToken.value = '';
+  await initApp();
+}
+
+loginBtn.addEventListener('click', attemptLogin);
+loginToken.addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
+
+/************ UI CONTROLS ************/
+const refreshBtn      = document.getElementById('refresh-btn');
+const saveStateBtn    = document.getElementById('save-state-btn');
+
+refreshBtn.addEventListener('click', loadState);
+saveStateBtn.addEventListener('click', saveState); // Only explicit saves now
+
+/************ STATE TRACKING FOR POKEMON SELECTION ************/
+function updateSelectedPokemonIdsFromTable() {
+  selectedPokemonIds.clear();
+  document.querySelectorAll('.selected-line img').forEach(img => {
+    const id = Number(img.dataset.uniqueid || img.src.match(/\/(\d+)\.png$/)?.[1]);
+    if (id) selectedPokemonIds.add(id);
+  });
+}
+
+function filterAvailableLines() {
+  availableLines = allLines.filter(line =>
+    line.every(poke => !selectedPokemonIds.has(poke.uniqueId))
+  );
+}
+
+/************ CORE FUNCTIONS ************/
+function createRow(location = '', name = '') {
+  const isDefault = defaultLocations.includes(location);
+  const locAttr = isDefault ? '' : ' contenteditable';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="location-cell"${locAttr}>${location}</td>
+    <td contenteditable>${name}</td>
+    <td class="cell" data-player="1"></td>
+    <td class="cell" data-player="2"></td>
+    <td class="cell" data-player="3"></td>
+  `;
+  // Autosave removed to prevent collisions
+  return tr;
+}
+
+async function fetchJSON(url) {
+  try { const r = await fetch(url); return r.ok ? r.json() : null; } catch(e){ console.error(e); return null; }
+}
+
+async function loadState() {
+  const tbody = document.querySelector('#tracker tbody');
+  tbody.innerHTML = '';
+  let state = null;
+  try {
+    const res = await fetch(`${RAW_URL}?t=${Date.now()}`);
+    if (res.ok) state = await res.json();
+    console.log('Loaded state:', state);
+  } catch(e){ console.error('Failed to fetch state.json', e); }
+
+  if (!state || typeof state !== 'object') {
+    console.warn('No valid state object. Using defaults.');
+    defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
+    updateSelectedPokemonIdsFromTable();
+    filterAvailableLines();
+    return;
+  }
+
+  if (!Array.isArray(state.rows)) {
+    console.warn('state.rows is not an array. Rendering with empty rows.');
+    state.rows = [];
+  }
+
+  document.querySelectorAll('thead th[contenteditable]').forEach((th, i) => {
+    if (state.players && state.players[i] != null) th.textContent = state.players[i];
+  });
+
+  state.rows.forEach(r => {
+    const tr = createRow(r.location, r.name);
+    tbody.appendChild(tr);
+    r.selections.forEach((sel, pIdx) => {
+      if (sel) {
+        const cell = tr.querySelector(`td[data-player="${pIdx+1}"]`);
+        const wrapper = document.createElement('div'); wrapper.className = 'selected-line';
+        sel.forEach(poke => {
+          const img = document.createElement('img');
+          img.alt = poke.name;
+          img.src = poke.sprite;
+          img.dataset.uniqueid = poke.uniqueId;
+          wrapper.appendChild(img);
         });
-        return res.ok;
-      } catch { return false; }
-    }
-
-    async function attemptLogin() {
-      const token = loginToken.value.trim();
-      if (!token) { loginError.textContent = 'Please paste your token.'; return; }
-      loginError.textContent = 'Checking token...';
-      const ok = await validateToken(token);
-      if (!ok) { loginError.textContent = 'Invalid token. Check permissions (repo contents: rw).'; return; }
-      localStorage.setItem('gh_token', token);
-      loginError.textContent = '';
-      loginToken.value = '';
-      await initApp();
-    }
-
-    loginBtn.addEventListener('click', attemptLogin);
-    loginToken.addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
-
-    /************ UI CONTROLS ************/
-    const refreshBtn      = document.getElementById('refresh-btn');
-    const saveStateBtn    = document.getElementById('save-state-btn');
-
-    refreshBtn.addEventListener('click', loadState);
-    saveStateBtn.addEventListener('click', saveState); // Only explicit saves now
-
-    /************ STATE TRACKING FOR POKEMON SELECTION ************/
-    function updateSelectedPokemonIdsFromTable() {
-      selectedPokemonIds.clear();
-      document.querySelectorAll('.selected-line img').forEach(img => {
-        const id = Number(img.src.match(/\/(\d+)\.png$/)[1]);
-        selectedPokemonIds.add(id);
-      });
-    }
-
-    function filterAvailableLines() {
-      availableLines = allLines.filter(line =>
-        line.every(poke => !selectedPokemonIds.has(poke.id))
-      );
-    }
-
-    /************ CORE FUNCTIONS ************/
-    function createRow(location = '', name = '') {
-      const isDefault = defaultLocations.includes(location);
-      const locAttr = isDefault ? '' : ' contenteditable';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="location-cell"${locAttr}>${location}</td>
-        <td contenteditable>${name}</td>
-        <td class="cell" data-player="1"></td>
-        <td class="cell" data-player="2"></td>
-        <td class="cell" data-player="3"></td>
-      `;
-      // Autosave removed to prevent collisions
-      return tr;
-    }
-
-    async function fetchJSON(url) {
-      try { const r = await fetch(url); return r.ok ? r.json() : null; } catch(e){ console.error(e); return null; }
-    }
-
-    async function loadState() {
-      const tbody = document.querySelector('#tracker tbody');
-      tbody.innerHTML = '';
-      let state = null;
-      try {
-        const res = await fetch(`${RAW_URL}?t=${Date.now()}`);
-        if (res.ok) state = await res.json();
-        console.log('Loaded state:', state);
-      } catch(e){ console.error('Failed to fetch state.json', e); }
-
-      if (!state || typeof state !== 'object') {
-        console.warn('No valid state object. Using defaults.');
-        defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
-        updateSelectedPokemonIdsFromTable();
-        filterAvailableLines();
-        return;
+        cell.innerHTML = '';
+        cell.appendChild(wrapper);
       }
+    });
+  });
 
-      if (!Array.isArray(state.rows)) {
-        console.warn('state.rows is not an array. Rendering with empty rows.');
-        state.rows = [];
+  updateSelectedPokemonIdsFromTable();
+  filterAvailableLines();
+}
+
+function buildState() {
+  const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
+  const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
+    const location = tr.querySelector('.location-cell').textContent.trim();
+    const name = tr.cells[1].textContent.trim();
+    const selections = [1,2,3].map(p => {
+      const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
+      return wrapper
+        ? Array.from(wrapper.querySelectorAll('img')).map(img => ({
+            name: img.alt,
+            uniqueId: Number(img.dataset.uniqueid),
+            sprite: img.src
+          }))
+        : null;
+    });
+    return { location, name, selections };
+  });
+  return { players, rows };
+}
+
+async function saveState() {
+  const state = buildState();
+  const stateB64 = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  const token = localStorage.getItem('gh_token');
+  if (!token) { alert('No token. Please log in again.'); showLogin(); return; }
+  const res = await fetch(DISPATCH_URL, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ event_type: 'update-state', client_payload: { state_b64: stateB64 } })
+  });
+  if (!res.ok) { console.error(await res.text()); alert('Save failed. Check console.'); }
+  else { alert('Saved. May take up to 20 seconds.'); }
+}
+
+// Helper: Fetch all varieties for a species and return as {name, id, formName, sprite, uniqueId}
+async function getVarietiesForSpecies(speciesUrl) {
+  const species = await fetchJSON(speciesUrl);
+  if (!species) return [];
+
+  // Each variety is a unique form (default, Alolan, Galarian, Hisuian, etc)
+  const varieties = await Promise.all(species.varieties.map(async v => {
+    const poke = await fetchJSON(v.pokemon.url);
+    // Find a readable form name (default, galarian, etc)
+    let formName = '';
+    if (v.pokemon.name !== species.name) {
+      // e.g. galarian-zigzagoon, alolan-meowth, etc
+      formName = v.pokemon.name.replace(species.name, '').replace(/^-/, '').replace(/-/g, ' ');
+    }
+    // Use a unique ID for form (species id * 10 + index of variety)
+    // so regular zigzagoon is e.g. 2630, galarian is 2631, etc
+    const uniqueId = species.id * 10 + species.varieties.findIndex(f => f.pokemon.name === v.pokemon.name);
+    return {
+      name: formName ? `${formName} ${species.name}` : species.name,
+      id: poke.id,
+      formName,
+      sprite: poke.sprites.front_default,
+      uniqueId
+    };
+  }));
+  return varieties;
+}
+
+// Recursively build all possible evolution lines for each form
+async function buildEvolutionLines(chain, currentLine = []) {
+  // For this step, get all varieties of this species
+  const varieties = await getVarietiesForSpecies(chain.species.url);
+
+  // For each variety, continue the evolution chain
+  if (chain.evolves_to && chain.evolves_to.length > 0) {
+    for (const evo of chain.evolves_to) {
+      for (const variety of varieties) {
+        await buildEvolutionLines(evo, [...currentLine, variety]);
       }
-
-      document.querySelectorAll('thead th[contenteditable]').forEach((th, i) => {
-        if (state.players && state.players[i] != null) th.textContent = state.players[i];
-      });
-
-      state.rows.forEach(r => {
-        const tr = createRow(r.location, r.name);
-        tbody.appendChild(tr);
-        r.selections.forEach((sel, pIdx) => {
-          if (sel) {
-            const cell = tr.querySelector(`td[data-player="${pIdx+1}"]`);
-            const wrapper = document.createElement('div'); wrapper.className = 'selected-line';
-            sel.forEach(poke => {
-              const img = document.createElement('img'); img.alt = poke.name; img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png`; wrapper.appendChild(img);
-            });
-            cell.innerHTML = '';
-            cell.appendChild(wrapper);
-          }
-        });
-      });
-
-      updateSelectedPokemonIdsFromTable();
-      filterAvailableLines();
     }
-
-    function buildState() {
-      const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
-      const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
-        const location = tr.querySelector('.location-cell').textContent.trim();
-        const name = tr.cells[1].textContent.trim();
-        const selections = [1,2,3].map(p => {
-          const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
-          return wrapper
-            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({ name: img.alt, id: Number(img.src.match(/\/(\d+)\.png$/)[1]) }))
-            : null;
-        });
-        return { location, name, selections };
-      });
-      return { players, rows };
+  } else {
+    // End of chain; push all lines for each variety
+    for (const variety of varieties) {
+      allLines.push([...currentLine, variety]);
     }
+  }
+}
 
-    async function saveState() {
-      const state = buildState();
-      const stateB64 = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
-      const token = localStorage.getItem('gh_token');
-      if (!token) { alert('No token. Please log in again.'); showLogin(); return; }
-      const res = await fetch(DISPATCH_URL, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ event_type: 'update-state', client_payload: { state_b64: stateB64 } })
-      });
-      if (!res.ok) { console.error(await res.text()); alert('Save failed. Check console.'); }
-      else { alert('Saved. May take up to 20 seconds.'); }
+async function loadEvolutionLines() {
+  allLines = [];
+  availableLines = [];
+  // Get all evolution chain URLs
+  const evoApi = 'https://pokeapi.co/api/v2/evolution-chain?limit=10000';
+  const data = await fetchJSON(evoApi);
+  if (!data) return;
+  // For each chain, build all possible lines (each regional form as its own)
+  for (const chainObj of data.results) {
+    const evoChain = await fetchJSON(chainObj.url);
+    if (evoChain && evoChain.chain) {
+      await buildEvolutionLines(evoChain.chain);
     }
+  }
+  // Eevee special lines (if you want to keep this logic, update as needed)
+  filterAvailableLines();
+}
 
-    async function loadEvolutionLines() {
-      const data = await fetchJSON('https://pokeapi.co/api/v2/evolution-chain?limit=10000');
-      if (!data) return;
-      const chains = await Promise.all(data.results.map(r => fetch(r.url).then(r => r.json())));
-      chains.forEach(chain => {
-        const line = [];
-        (function traverse(node){
-          const id = Number(node.species.url.match(/\/(\d+)\/$/)[1]);
-          line.push({ name: node.species.name, id });
-          if (node.evolves_to.length) traverse(node.evolves_to[0]);
-        })(chain.chain);
-        allLines.push(line);
-      });
-      // --- Add one evolution line for each Eevee evolution ---
-      (function addEeveeLines(){
-        const eeveeId = 133;
-        const eeveeName = 'eevee';
-        const evoMap = [
-          { name: 'vaporeon', id: 134 },
-          { name: 'jolteon',  id: 135 },
-          { name: 'flareon',  id: 136 },
-          { name: 'espeon',   id: 196 },
-          { name: 'umbreon',  id: 197 },
-          { name: 'leafeon',  id: 470 },
-          { name: 'glaceon',  id: 471 },
-          { name: 'sylveon',  id: 700 }
-        ];
-        evoMap.forEach(evo => {
-          allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
+function showDropdown(cell) {
+  closeDropdown();
+  const rect = cell.getBoundingClientRect();
+  const dd = document.createElement('div'); dd.className = 'dropdown';
+  dd.style.top = rect.bottom + 'px'; dd.style.left = rect.left + 'px';
+  const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);
+  const list = document.createElement('div'); dd.appendChild(list);
+  function render(filter=''){
+    list.innerHTML='';
+    availableLines.forEach((line,i)=>{
+      const text=line.map(p=>p.name).join(' → ').toLowerCase();
+      if(!filter||text.includes(filter)){
+        const item=document.createElement('div'); item.className='dropdown-item';
+        line.forEach(p=>{
+          const img=document.createElement('img');
+          img.src=p.sprite;
+          img.alt=p.name;
+          img.dataset.uniqueid=p.uniqueId;
+          item.appendChild(img);
         });
-      })();
-      filterAvailableLines();
-    }
+        const span=document.createElement('span'); span.textContent=line.map(p=>p.name).join(' → '); item.appendChild(span);
+        item.onclick=async()=>{
+          const wrapper=document.createElement('div'); wrapper.className = 'selected-line';
+          line.forEach(p=>{
+            const img=document.createElement('img');
+            img.src=p.sprite; img.alt=p.name; img.dataset.uniqueid=p.uniqueId;
+            wrapper.appendChild(img);
+          });
+          cell.innerHTML=''; cell.appendChild(wrapper);
 
-    function showDropdown(cell) {
-      closeDropdown();
-      const rect = cell.getBoundingClientRect();
-      const dd = document.createElement('div'); dd.className = 'dropdown';
-      dd.style.top = rect.bottom + 'px'; dd.style.left = rect.left + 'px';
-      const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);
-      const list = document.createElement('div'); dd.appendChild(list);
-      function render(filter=''){
-        list.innerHTML='';
-        availableLines.forEach((line,i)=>{
-          const text=line.map(p=>p.name).join(' → ').toLowerCase();
-          if(!filter||text.includes(filter)){
-            const item=document.createElement('div'); item.className='dropdown-item';
-            line.forEach(p=>{
-              const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; item.appendChild(img);
-            });
-            const span=document.createElement('span'); span.textContent=line.map(p=>p.name).join(' → '); item.appendChild(span);
-            item.onclick=async()=>{
-              const wrapper=document.createElement('div'); wrapper.className = 'selected-line';
-              line.forEach(p=>{
-                const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);
-              });
-              cell.innerHTML=''; cell.appendChild(wrapper);
-
-              // Update selections and filter available lines after selection
-              updateSelectedPokemonIdsFromTable();
-              filterAvailableLines();
-              closeDropdown();
-            };
-            list.appendChild(item);
-          }
-        });
+          updateSelectedPokemonIdsFromTable();
+          filterAvailableLines();
+          closeDropdown();
+        };
+        list.appendChild(item);
       }
-      input.oninput=()=>render(input.value.trim().toLowerCase());
-      render();
-      document.body.appendChild(dd);
-    }
-    function closeDropdown(){ const e=document.querySelector('.dropdown'); if(e) e.remove(); }
+    });
+  }
+  input.oninput=()=>render(input.value.trim().toLowerCase());
+  render();
+  document.body.appendChild(dd);
+}
+function closeDropdown(){ const e=document.querySelector('.dropdown'); if(e) e.remove(); }
 
-    async function initApp(){
-      showApp();
-      await loadEvolutionLines();
-      await loadState();
-      document.getElementById('add-row-btn').addEventListener('click', async ()=>{
-        const tr = createRow('', '');
-        document.querySelector('#tracker tbody').appendChild(tr);
-        // Manual save only via button
-      });
-      document.addEventListener('click', e => {
-        const cell = e.target.closest('.cell');
-        if (cell) showDropdown(cell); else if (!e.target.closest('.dropdown')) closeDropdown();
-      });
-    }
+async function initApp(){
+  showApp();
+  await loadEvolutionLines();
+  await loadState();
+  document.getElementById('add-row-btn').addEventListener('click', async ()=>{
+    const tr = createRow('', '');
+    document.querySelector('#tracker tbody').appendChild(tr);
+    // Manual save only via button
+  });
+  document.addEventListener('click', e => {
+    const cell = e.target.closest('.cell');
+    if (cell) showDropdown(cell); else if (!e.target.closest('.dropdown')) closeDropdown();
+  });
+}
 
-    (async function(){
-      const stored = localStorage.getItem('gh_token');
-      if (!stored) {
-        showLogin();
-      } else {
-        const ok = await validateToken(stored);
-        if (!ok) showLogin(); else await initApp();
-      }
-    })();
-  </script>
+(async function(){
+  const stored = localStorage.getItem('gh_token');
+  if (!stored) {
+    showLogin();
+  } else {
+    const ok = await validateToken(stored);
+    if (!ok) showLogin(); else await initApp();
+  }
+})();
+</script>
 </body>
 </html>
