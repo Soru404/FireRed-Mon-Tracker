@@ -5,128 +5,125 @@
     { "name": "golem-alola", "id": 10111 }
   ],
   [
-    { "name": "sandshrew-alola", "id": 10079 },
-    { "name": "sandslash-alola", "id": 10080 }
+    { "name": "sandshrew-alola", "id": 10101 },
+    { "name": "sandslash-alola", "id": 10102 }
   ],
   [
-    { "name": "vulpix-alola", "id": 10081 },
-    { "name": "ninetales-alola", "id": 10082 }
+    { "name": "vulpix-alola", "id": 10103 },
+    { "name": "ninetales-alola", "id": 10104 }
   ],
   [
-    { "name": "diglett-alola", "id": 10083 },
-    { "name": "dugtrio-alola", "id": 10084 }
+    { "name": "diglett-alola", "id": 10105 },
+    { "name": "dugtrio-alola", "id": 10106 }
   ],
   [
-    { "name": "meowth-alola", "id": 10085 },
-    { "name": "persian-alola", "id": 10086 }
+    { "name": "meowth-alola", "id": 10107 },
+    { "name": "persian-alola", "id": 10108 }
   ],
   [
-    { "name": "grimer-alola", "id": 10111 },
-    { "name": "muk-alola", "id": 10112 }
+    { "name": "grimer-alola", "id": 10112 },
+    { "name": "muk-alola", "id": 10113 }
   ],
   [
-    { "name": "exeggutor-alola", "id": 10113 }
+    { "name": "exeggutor-alola", "id": 10114 }
   ],
   [
-    { "name": "marowak-alola", "id": 10114 }
+    { "name": "marowak-alola", "id": 10115 }
   ],
   [
-    { "name": "meowth-galar", "id": 10135 },
-    { "name": "perrserker", "id": 10136 }
+    { "name": "meowth-galar", "id": 10161 },
+    { "name": "perrserker", "id": 863 }
   ],
   [
-    { "name": "ponyta-galar", "id": 10137 },
-    { "name": "rapidash-galar", "id": 10138 }
+    { "name": "ponyta-galar", "id": 10162 },
+    { "name": "rapidash-galar", "id": 10163 }
   ],
   [
-    { "name": "slowpoke-galar", "id": 10139 },
-    { "name": "slowbro-galar", "id": 10140 }
+    { "name": "slowpoke-galar", "id": 10164 },
+    { "name": "slowbro-galar", "id": 10165 },
+    { "name": "slowking-galar", "id": 10172 }
+],
+  [
+    { "name": "farfetchd-galar", "id": 10166 },
+    { "name": "sirfetchd", "id": 865 }
   ],
   [
-    { "name": "slowpoke-galar", "id": 10139 },
-    { "name": "slowking-galar", "id": 10141 }
+    { "name": "weezing-galar", "id": 10167 }
   ],
   [
-    { "name": "farfetchd-galar", "id": 10142 },
-    { "name": "sirfetchd", "id": 10143 }
+    { "name": "mr-mime-galar", "id": 10168 },
+    { "name": "mr-rime", "id": 686 }
   ],
   [
-    { "name": "weezing-galar", "id": 10144 }
+    { "name": "corsola-galar", "id": 10169 },
+    { "name": "cursola", "id": 864 }
   ],
   [
-    { "name": "mr-mime-galar", "id": 10145 },
-    { "name": "mr-rime", "id": 10146 }
+    { "name": "zigzagoon-galar", "id": 10174 },
+    { "name": "linoone-galar", "id": 10175 },
+    { "name": "obstagoon", "id": 862 }
   ],
   [
-    { "name": "corsola-galar", "id": 10147 },
-    { "name": "cursola", "id": 10148 }
+    { "name": "darumaka-galar", "id": 10176 },
+    { "name": "darmanitan-galar", "id": 10177 }
   ],
   [
-    { "name": "zigzagoon-galar", "id": 10149 },
-    { "name": "linoone-galar", "id": 10150 },
-    { "name": "obstagoon", "id": 10151 }
+    { "name": "yamask-galar", "id": 10179 },
+    { "name": "runerigus", "id": 867 }
   ],
   [
-    { "name": "darumaka-galar", "id": 10152 },
-    { "name": "darmanitan-galar", "id": 10153 }
+    { "name": "stunfisk-galar", "id": 10180 }
   ],
   [
-    { "name": "yamask-galar", "id": 10154 },
-    { "name": "runerigus", "id": 10155 }
+    { "name": "growlithe-hisui", "id": 10229 },
+    { "name": "arcanine-hisui", "id": 10230 }
   ],
   [
-    { "name": "stunfisk-galar", "id": 10156 }
+    { "name": "voltorb-hisui", "id": 10231 },
+    { "name": "electrode-hisui", "id": 10232 }
   ],
   [
-    { "name": "growlithe-hisui", "id": 10200 },
-    { "name": "arcanine-hisui", "id": 10201 }
+    { "name": "typhlosion-hisui", "id": 10233 }
   ],
   [
-    { "name": "voltorb-hisui", "id": 10202 },
-    { "name": "electrode-hisui", "id": 10203 }
+    { "name": "qwilfish-hisui", "id": 10234 },
+    { "name": "overqwil", "id": 904 }
   ],
   [
-    { "name": "typhlosion-hisui", "id": 10204 }
+    { "name": "sneasel-hisui", "id": 10235 },
+    { "name": "sneasler", "id": 903 }
   ],
   [
-    { "name": "qwilfish-hisui", "id": 10205 },
-    { "name": "overqwil", "id": 10206 }
+    { "name": "samurott-hisui", "id": 10236 }
   ],
   [
-    { "name": "sneasel-hisui", "id": 10207 },
-    { "name": "sneasler", "id": 10208 }
+    { "name": "lilligant-hisui", "id": 10237 }
   ],
   [
-    { "name": "samurott-hisui", "id": 10209 }
+    { "name": "zorua-hisui", "id": 10238 },
+    { "name": "zoroark-hisui", "id": 10239 }
   ],
   [
-    { "name": "lilligant-hisui", "id": 10210 }
+    { "name": "braviary-hisui", "id": 10240 }
   ],
   [
-    { "name": "zorua-hisui", "id": 10211 },
-    { "name": "zoroark-hisui", "id": 10212 }
+    { "name": "sliggoo-hisui", "id": 10241 },
+    { "name": "goodra-hisui", "id": 10242 }
   ],
   [
-    { "name": "braviary-hisui", "id": 10213 }
+    { "name": "avalugg-hisui", "id": 10243 }
   ],
   [
-    { "name": "sliggoo-hisui", "id": 10214 },
-    { "name": "goodra-hisui", "id": 10215 }
+    { "name": "decidueye-hisui", "id": 10245 }
   ],
   [
-    { "name": "avalugg-hisui", "id": 10216 }
+    { "name": "wooper-paldea", "id": 10253 },
+    { "name": "clodsire", "id": 980 }
   ],
   [
-    { "name": "decidueye-hisui", "id": 10217 }
+    { "name": "tauros-paldea-aqua-breed", "id": 10252 }
   ],
   [
-    { "name": "wooper-paldea", "id": 10227 },
-    { "name": "clodsire", "id": 10228 }
-  ],
-  [
-    { "name": "tauros-paldea-aqua-breed", "id": 10229 }
-  ],
-  [
-    { "name": "tauros-paldea-blaze-breed", "id": 10230 }
+    { "name": "tauros-paldea-blaze-breed", "id": 10251 }
   ]
 ]
