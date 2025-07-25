@@ -65,7 +65,7 @@
         <td class="cell" data-player="2"></td>
         <td class="cell" data-player="3"></td>
       `;
-      tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', saveState));
+      // Autosave disabled – no input listener
       return tr;
     }
 
@@ -81,8 +81,8 @@
       try {
         const res = await fetch(`${RAW_URL}?t=${Date.now()}`, { cache: 'no-store' });
         const text = await res.text();
-        console.log('RAW_URL response status:', res.status);
-        console.log('RAW_URL response text:', text);
+        console.log('RAW_URL status:', res.status);
+        console.log('RAW_URL text:', text);
         if (res.ok) {
           try {
             state = JSON.parse(text);
@@ -94,10 +94,15 @@
         console.error('Failed to fetch state.json', e);
       }
 
-      if (!state || !Array.isArray(state.rows)) {
-        console.warn('No valid state found, using defaults.');
+      if (!state || typeof state !== 'object') {
+        console.warn('No valid state object. Using defaults.');
         defaultLocations.forEach(loc => tbody.appendChild(createRow(loc, '')));
         return;
+      }
+
+      if (!Array.isArray(state.rows)) {
+        console.warn('state.rows is not an array. Rendering with empty rows.');
+        state.rows = [];
       }
 
       // Players
@@ -125,14 +130,9 @@
           }
         });
       });
-    });
-        });
-      } else {
-        defaultLocations.forEach(loc => document.querySelector('#tracker tbody').appendChild(createRow(loc, '')));
-      }
     }
 
-    async function saveState() {
+    // --------------------async function saveState() {
       const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
       const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
         const location = tr.querySelector('.location-cell').textContent.trim();
