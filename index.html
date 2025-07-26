@@ -269,25 +269,6 @@ async function loadEvolutionLines() {
     allLines.push(line);
   });
 
-  // Eevee logic (existing)
-  (function addEeveeLines(){
-    const eeveeId = 133;
-    const eeveeName = 'eevee';
-    const evoMap = [
-      { name: 'vaporeon', id: 134 },
-      { name: 'jolteon',  id: 135 },
-      { name: 'flareon',  id: 136 },
-      { name: 'espeon',   id: 196 },
-      { name: 'umbreon',  id: 197 },
-      { name: 'leafeon',  id: 470 },
-      { name: 'glaceon',  id: 471 },
-      { name: 'sylveon',  id: 700 }
-    ];
-    evoMap.forEach(evo => {
-      allLines.push([{ name: eeveeName, id: eeveeId }, evo]);
-    });
-  })();
-
   // --- Additional logic to fetch from additional-lines.json ---
   const additionalLines = await fetchJSON(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/additional-lines.json`);
   if (Array.isArray(additionalLines)) {
