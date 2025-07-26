@@ -2,8 +2,19 @@
   [
     { "name": "wurmple", "id": 265 },
     { "name": "silcoon", "id": 266 },
-{ "name": "beautifly", "id": 267 },
-{ "name": "cascoon", "id": 268 },
-{ "name": "dustox", "id": 269 }
+    { "name": "beautifly", "id": 267 },
+    { "name": "cascoon", "id": 268 },
+    { "name": "dustox", "id": 269 }
+  ],
+  [
+    { "name": "pichu", "id": 172 },
+    { "name": "pikachu", "id": 25 },
+    { "name": "raichu", "id": 26 },
+    { "name": "raichu-alola", "id": 10100 } 
+  ],
+  [
+    { "name": "exeggcute", "id": 102 },
+    { "name": "exeggutor", "id": 103 },
+    { "name": "exeggutor-alola", "id": 10114 }
   ]
 ]
