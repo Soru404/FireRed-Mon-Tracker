@@ -298,6 +298,21 @@ async function loadEvolutionLines() {
   }
   // -----------------------------------------------------------
 
+// --- Fetch custom lines from custom-lines.json and REPLACE lines ---
+  const customLines = await fetchJSON(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/custom-lines.json`);
+  if (Array.isArray(customLines)) {
+    customLines.forEach(customLine => {
+      if (Array.isArray(customLine) && customLine.length > 0) {
+        const customFirstName = customLine[0].name;
+        // Remove any line in allLines whose first Pokémon matches the custom line's first Pokémon
+        allLines = allLines.filter(line => !line[0] || line[0].name !== customFirstName);
+        // Add the custom line
+        allLines.push(customLine);
+      }
+    });
+  }
+  // -----------------------------------------------------------
+
   filterAvailableLines();
 }
 
