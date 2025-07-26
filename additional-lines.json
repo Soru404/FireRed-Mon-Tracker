@@ -125,5 +125,35 @@
   ],
   [
     { "name": "tauros-paldea-blaze-breed", "id": 10251 }
-  ]
+  ],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'jolteon',  id: 135 }
+],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'flareon',  id: 136 }
+],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'espeon',   id: 196 }
+],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'umbreon',  id: 197 }
+],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'leafeon',  id: 470 }
+],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'glaceon',  id: 471 }
+],
+[
+      { name: 'eevee', id: 133 },
+      { name: 'sylveon',  id: 700 }
+]
+
+
 ]
