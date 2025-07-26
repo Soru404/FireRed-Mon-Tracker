@@ -305,7 +305,7 @@ async function loadEvolutionLines() {
       const rect = cell.getBoundingClientRect();
       const dd = document.createElement('div'); dd.className = 'dropdown';
       dd.style.top = rect.bottom + 'px'; dd.style.left = rect.left + 'px';
-      const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);input.focus();
+      const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);
       const list = document.createElement('div'); dd.appendChild(list);
       function render(filter=''){
         list.innerHTML='';
@@ -336,6 +336,7 @@ async function loadEvolutionLines() {
       input.oninput=()=>render(input.value.trim().toLowerCase());
       render();
       document.body.appendChild(dd);
+      input.focus();
     }
     function closeDropdown(){ const e=document.querySelector('.dropdown'); if(e) e.remove(); }
 
