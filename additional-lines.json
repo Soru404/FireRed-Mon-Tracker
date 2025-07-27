@@ -93,8 +93,7 @@
     { "name": "tauros-paldea-aqua-breed", "id": 10252 },
     { "name": "tauros-paldea-blaze-breed", "id": 10251 },
   { "name": "tauros-paldea-combat-breed", "id": 10250 }
-]
-  ],
+],
 [
   { "name": "eevee", "id": 133 },
   { "name": "jolteon", "id": 135 }
