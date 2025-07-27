@@ -25,9 +25,6 @@
     { "name": "muk-alola", "id": 10113 }
   ],
   [
-    { "name": "marowak-alola", "id": 10115 }
-  ],
-  [
     { "name": "meowth-galar", "id": 10161 },
     { "name": "perrserker", "id": 863 }
   ],
@@ -43,9 +40,6 @@
   [
     { "name": "farfetchd-galar", "id": 10166 },
     { "name": "sirfetchd", "id": 865 }
-  ],
-  [
-    { "name": "weezing-galar", "id": 10167 }
   ],
   [
     { "name": "mr-mime-galar", "id": 10168 },
@@ -80,9 +74,6 @@
     { "name": "electrode-hisui", "id": 10232 }
   ],
   [
-    { "name": "typhlosion-hisui", "id": 10233 }
-  ],
-  [
     { "name": "qwilfish-hisui", "id": 10234 },
     { "name": "overqwil", "id": 904 }
   ],
@@ -91,37 +82,18 @@
     { "name": "sneasler", "id": 903 }
   ],
   [
-    { "name": "samurott-hisui", "id": 10236 }
-  ],
-  [
-    { "name": "lilligant-hisui", "id": 10237 }
-  ],
-  [
     { "name": "zorua-hisui", "id": 10238 },
     { "name": "zoroark-hisui", "id": 10239 }
-  ],
-  [
-    { "name": "braviary-hisui", "id": 10240 }
-  ],
-  [
-    { "name": "sliggoo-hisui", "id": 10241 },
-    { "name": "goodra-hisui", "id": 10242 }
-  ],
-  [
-    { "name": "avalugg-hisui", "id": 10243 }
-  ],
-  [
-    { "name": "decidueye-hisui", "id": 10245 }
   ],
   [
     { "name": "wooper-paldea", "id": 10253 },
     { "name": "clodsire", "id": 980 }
   ],
   [
-    { "name": "tauros-paldea-aqua-breed", "id": 10252 }
-  ],
-  [
-    { "name": "tauros-paldea-blaze-breed", "id": 10251 }
+    { "name": "tauros-paldea-aqua-breed", "id": 10252 },
+    { "name": "tauros-paldea-blaze-breed", "id": 10251 },
+  { "name": "tauros-paldea-combat-breed", "id": 10250 }
+]
   ],
 [
   { "name": "eevee", "id": 133 },
@@ -150,7 +122,15 @@
 [
   { "name": "eevee", "id": 133 },
   { "name": "sylveon", "id": 700 }
+],
+[
+  { "name": "articuno-galar", "id": 10169 }
+],
+[
+  { "name": "zapdos-galar", "id": 10170 }
+],
+[
+  { "name": "moltres-galar", "id": 10171 }
 ]
-
 
 ]
