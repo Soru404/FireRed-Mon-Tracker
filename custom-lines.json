@@ -95,7 +95,14 @@
   { "name": "slowpoke", "id": 79 },
   { "name": "slowbro", "id": 80 },
   { "name": "slowking", "id": 199 }
+],
+  [
+  { "name": "mime-jr", "id": 439 },
+  { "name": "mr-mime", "id": 122 },
+  { "name": "mr-mime-galar", "id": 10168 },
+  { "name": "mr-rime", "id": 866 }
 ]
+
 
 
 
