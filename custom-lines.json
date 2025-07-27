@@ -74,5 +74,30 @@
   [
   { "name": "basculin", "id": 550 },
   { "name": "basculegion", "id": 902 }
+],
+  [
+  { "name": "cosmog", "id": 789 },
+  { "name": "cosmoem", "id": 790 },
+  { "name": "solgaleo", "id": 791 },
+  { "name": "lunala", "id": 792 }
+],
+  [
+  { "name": "nincada", "id": 290 },
+  { "name": "ninjask", "id": 291 },
+  { "name": "shedinja", "id": 292 }
+],
+  [
+  { "name": "scyther", "id": 123 },
+  { "name": "scizor", "id": 212 },
+  { "name": "kleavor", "id": 900 }
+],
+  [
+  { "name": "slowpoke", "id": 79 },
+  { "name": "slowbro", "id": 80 },
+  { "name": "slowking", "id": 199 }
 ]
+
+
+
+
 ]
