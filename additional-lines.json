@@ -42,13 +42,13 @@
     { "name": "sirfetchd", "id": 865 }
   ],
   [
-    { "name": "mr-mime-galar", "id": 10168 },
-    { "name": "mr-rime", "id": 686 }
-  ],
+  { "name": "mr-mime-galar", "id": 10168 },
+  { "name": "mr-rime", "id": 866 }
+],
   [
-    { "name": "corsola-galar", "id": 10169 },
-    { "name": "cursola", "id": 864 }
-  ],
+  { "name": "corsola-galar", "id": 10173 },
+  { "name": "cursola", "id": 864 }
+],
   [
     { "name": "zigzagoon-galar", "id": 10174 },
     { "name": "linoone-galar", "id": 10175 },
