@@ -16,5 +16,63 @@
     { "name": "exeggcute", "id": 102 },
     { "name": "exeggutor", "id": 103 },
     { "name": "exeggutor-alola", "id": 10114 }
-  ]
+  ],
+  [
+  { "name": "zigzagoon", "id": 263 },
+  { "name": "linoone",  "id": 264 }
+],
+  [
+  { "name": "koffing", "id": 109 },
+  { "name": "weezing", "id": 110 },
+  { "name": "weezing-galar", "id": 10167 }
+],
+  [
+  { "name": "cubone", "id": 104 },
+  { "name": "marowak", "id": 105 },
+  { "name": "marowak-alola", "id": 10115 }
+],
+  [
+  { "name": "bergmite", "id": 712 },
+  { "name": "avalugg", "id": 713 },
+  { "name": "avalugg-hisui", "id": 10243 }
+],
+  [
+  { "name": "petilil", "id": 548 },
+  { "name": "lilligant", "id": 549 },
+  { "name": "lilligant-hisui", "id": 10237 }
+],
+  [
+  { "name": "goomy", "id": 704 },
+  { "name": "sliggoo", "id": 705 },
+  { "name": "sliggoo-hisui", "id": 10241 },
+  { "name": "goodra", "id": 706 },
+  { "name": "goodra-hisui", "id": 10242 }
+],
+  [
+  { "name": "rufflet", "id": 627 },
+  { "name": "braviary", "id": 628 },
+  { "name": "braviary-hisui", "id": 10240 }
+],
+  [
+  { "name": "oshawott", "id": 501 },
+  { "name": "dewott", "id": 502 },
+  { "name": "samurott", "id": 503 },
+  { "name": "samurott-hisui", "id": 10236 }
+],
+  [
+  { "name": "cyndaquil", "id": 155 },
+  { "name": "quilava", "id": 156 },
+  { "name": "typhlosion", "id": 157 },
+  { "name": "typhlosion-hisui", "id": 10233 }
+],
+  [
+  { "name": "rowlet", "id": 722 },
+  { "name": "dartrix", "id": 723 },
+  { "name": "decidueye", "id": 724 },
+  { "name": "decidueye-hisui", "id": 10244 }
+],
+  [
+  { "name": "basculin", "id": 550 },
+  { "name": "basculegion", "id": 902 }
+]
 ]
