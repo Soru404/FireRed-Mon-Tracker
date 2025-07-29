@@ -19,7 +19,7 @@
     th[contenteditable], td[contenteditable] { background: #eef; cursor: text; }
     #add-row-btn { padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
     #add-row-btn:hover { background-color: #45a049; }
-    .dropdown { position: absolute; background: white; border: 1px solid #aaa; max-height: 350px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); padding: 5px; min-width: 200px; }
+    .dropdown { position: fixed; background: white; border: 1px solid #aaa; max-height: 350px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); padding: 5px; min-width: 200px; }
     .dropdown input { width: 100%; padding: 4px; margin-bottom: 6px; box-sizing: border-box; }
     .dropdown-item { display: flex; align-items: center; padding: 4px; cursor: pointer; }
     .dropdown-item:hover { background: #eee; }
@@ -302,43 +302,85 @@ async function loadEvolutionLines() {
 }
 
     function showDropdown(cell) {
-      closeDropdown();
-      const rect = cell.getBoundingClientRect();
-      const dd = document.createElement('div'); dd.className = 'dropdown';
-      dd.style.top = rect.bottom + 'px'; dd.style.left = rect.left + 'px';
-      const input = document.createElement('input'); input.placeholder = 'Search Pokémon...'; dd.appendChild(input);
-      const list = document.createElement('div'); dd.appendChild(list);
-      function render(filter=''){
-        list.innerHTML='';
-        availableLines.forEach((line,i)=>{
-          const text=line.map(p=>p.name).join(' → ').toLowerCase();
-          if(!filter||text.includes(filter)){
-            const item=document.createElement('div'); item.className='dropdown-item';
-            line.forEach(p=>{
-              const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; item.appendChild(img);
-            });
-            const span=document.createElement('span'); span.textContent=line.map(p=>p.name).join(' → '); item.appendChild(span);
-            item.onclick=async()=>{
-              const wrapper=document.createElement('div'); wrapper.className = 'selected-line';
-              line.forEach(p=>{
-                const img=document.createElement('img'); img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; img.alt=p.name; wrapper.appendChild(img);
-              });
-              cell.innerHTML=''; cell.appendChild(wrapper);
+  // Close any open selector first
+  closeDropdown();
 
-              // Update selections and filter available lines after selection
-              updateSelectedPokemonIdsFromTable();
-              filterAvailableLines();
-              closeDropdown();
-            };
-            list.appendChild(item);
-          }
+  // Get the cell’s location in the viewport
+  const rect = cell.getBoundingClientRect();
+
+  // Create the dropdown container
+  const dd = document.createElement('div');
+  dd.className = 'dropdown';
+  dd.style.position = 'fixed';        // ① coordinates now relative to the viewport
+  dd.style.top  = rect.bottom + 'px';
+  dd.style.left = rect.left   + 'px';
+
+  // Search box
+  const input = document.createElement('input');
+  input.placeholder = 'Search Pokémon…';
+  dd.appendChild(input);
+
+  // List wrapper
+  const list = document.createElement('div');
+  dd.appendChild(list);
+
+  // Render helper
+  function render(filter = '') {
+    list.innerHTML = '';
+    availableLines.forEach(line => {
+      const text = line.map(p => p.name).join(' → ').toLowerCase();
+      if (!filter || text.includes(filter)) {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+
+        // Icons
+        line.forEach(p => {
+          const img = document.createElement('img');
+          img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+          img.alt = p.name;
+          item.appendChild(img);
         });
+
+        // Text
+        const span = document.createElement('span');
+        span.textContent = line.map(p => p.name).join(' → ');
+        item.appendChild(span);
+
+        // Click handler
+        item.onclick = () => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'selected-line';
+
+          line.forEach(p => {
+            const img = document.createElement('img');
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+            img.alt = p.name;
+            wrapper.appendChild(img);
+          });
+
+          cell.innerHTML = '';
+          cell.appendChild(wrapper);
+
+          // Update state
+          updateSelectedPokemonIdsFromTable();
+          filterAvailableLines();
+          closeDropdown();
+        };
+
+        list.appendChild(item);
       }
-      input.oninput=()=>render(input.value.trim().toLowerCase());
-      render();
-      document.body.appendChild(dd);
-      input.focus();
-    }
+    });
+  }
+
+  // Live filtering
+  input.oninput = () => render(input.value.trim().toLowerCase());
+  render();
+
+  // Mount and focus (without scrolling)
+  document.body.appendChild(dd);
+  input.focus({ preventScroll: true });   // ② don’t let the page jump
+}
+
     function closeDropdown(){ const e=document.querySelector('.dropdown'); if(e) e.remove(); }
 
     async function initApp(){
