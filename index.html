@@ -13,7 +13,6 @@
     thead th[contenteditable] { color: #000; }
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
     tbody tr:hover { background-color: #f1f1f1; }
-    th, td { border: 1px solid #ddd; text-align: center; padding: 12px; /* Increased padding for larger cells */ }
     th, td { border: 1px solid #ddd; text-align: center; padding: 6px; /* Increased padding for larger cells */ }
     td.location-cell { text-align: left; font-weight: 600; background-color: #fcfcfc; width: 200px; }
     th[contenteditable], td[contenteditable] { background: #eef; cursor: text; }
@@ -25,7 +24,6 @@
     .dropdown-item:hover { background: #eee; }
     .dropdown-item img { width: 48px; height: 48px; margin-right: 8px; } /* Larger icons in dropdown */
     .selected-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
-    .selected-line img { width: 48px; height: 48px; } /* Larger selected Pokémon icons */
     .selected-line img { width: 64px; height: 64px; } /* Larger selected Pokémon icons */
     /* --- team column --------------------------------- */
     .team-cell        { width: 60px; }
@@ -106,7 +104,6 @@
     ];
     let allLines = [], availableLines = [];
     let selectedPokemonIds = new Set();
-    let rowCounter = 0;        // keeps each row’s original position
 
     /************ LOGIN LOGIC ************/
     const loginScreen = document.getElementById('login-screen');
@@ -121,7 +118,7 @@
     function getLocationOrder(row) {
       const loc = row.querySelector('.location-cell').textContent.trim();
       const idx = defaultLocations.indexOf(loc);
-      return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+      return idx === -1 ? Infinity : idx;
     }
 
     
@@ -176,7 +173,6 @@
       const isDefault = defaultLocations.includes(location);
     
       const tr = document.createElement('tr');
-      tr.dataset.originalIndex = rowCounter++;     // remember where this row started
     
       tr.innerHTML = `
         <td class="team-cell">
