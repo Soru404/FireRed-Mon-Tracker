@@ -303,6 +303,7 @@
 
     async function saveState() {
       const state = buildState();
+      console.log('State being sent to GitHub:', state);
       const stateB64 = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
       const token = localStorage.getItem('gh_token');
       if (!token) { alert('No token. Please log in again.'); showLogin(); return; }
