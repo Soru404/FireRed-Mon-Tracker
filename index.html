@@ -118,6 +118,13 @@
     function showLogin() { loginScreen.style.display = 'flex'; appDiv.style.display = 'none'; }
     function showApp()   { loginScreen.style.display = 'none'; appDiv.style.display = 'block'; }
 
+    function getLocationOrder(row) {
+      const loc = row.querySelector('.location-cell').textContent.trim();
+      const idx = defaultLocations.indexOf(loc);
+      return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+    }
+
+    
     async function validateToken(token) {
       try {
         const res = await fetch('https://api.github.com/rate_limit', {
@@ -194,37 +201,35 @@
       const tbody    = row.parentElement;
     
       if (checkbox.checked) {
-        /* ---------- limit of 6 ---------- */
+        // limit of six
         if (document.querySelectorAll('.team-checkbox:checked').length > 6) {
           checkbox.checked = false;
           alert('Only six Pokémon can be in the team at once.');
           return;
         }
     
-        /* ---------- move BELOW existing in‑team rows ---------- */
-        const teamRows = Array.from(
-          tbody.querySelectorAll('.team-checkbox:checked')
-        )
-          .map(cb => cb.closest('tr'))
-          .filter(r => r !== row);          // exclude the row we’re moving now
+        // move below existing in‑team rows
+        const teamRows = Array.from(tbody.querySelectorAll('.team-checkbox:checked'))
+                              .map(cb => cb.closest('tr'))
+                              .filter(r => r !== row);
     
-        const lastTeamRow = teamRows.pop(); // undefined if none yet checked
-        if (lastTeamRow) {
-          tbody.insertBefore(row, lastTeamRow.nextSibling);  // after the last in‑team row
-        } else {
-          tbody.insertBefore(row, tbody.firstChild);         // first in‑team row
-        }
+        const lastTeam = teamRows.pop();
+        lastTeam ? tbody.insertBefore(row, lastTeam.nextSibling)
+                 : tbody.insertBefore(row, tbody.firstChild);
     
       } else {
-        /* ---------- unchecking: return to original order ---------- */
-        const original = Number(row.dataset.originalIndex);
-        const before   = Array.from(tbody.children)
-          .filter(r => !r.querySelector('.team-checkbox:checked'))        // unchecked rows
-          .find(r => Number(r.dataset.originalIndex) > original);         // row that came later
+        // move back to defaultLocations order
+        const order = getLocationOrder(row);
+    
+        const uncheckedRows = Array.from(tbody.children)
+          .filter(r => !r.querySelector('.team-checkbox:checked'));
+    
+        const before = uncheckedRows.find(r => getLocationOrder(r) > order);
     
         before ? tbody.insertBefore(row, before) : tbody.appendChild(row);
       }
     }
+
 
 
     async function fetchJSON(url) {
