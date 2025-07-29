@@ -251,7 +251,7 @@
       const cb = tr.querySelector('.team-checkbox');
         if (r.inTeam) {
           cb.checked = true;
-          handleTeamToggle({ target: cb });   // reuse the same logic
+          handleTeamToggle({ target: cb });   // reuse the same logic to float the row
         }
         
         r.selections.forEach((sel, pIdx) => {
@@ -272,19 +272,19 @@
     }
 
     function buildState() {
+      // player names from the editable header cells
       const players = Array.from(
         document.querySelectorAll('thead th[contenteditable]')
       ).map(th => th.textContent.trim());
     
-      const rows = Array.from(
-        document.querySelectorAll('#tracker tbody tr')
-      ).map(tr => {
+      // every table row
+      const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
         const location = tr.querySelector('.location-cell').textContent.trim();
-        const name     = tr.cells[2].textContent.trim();              // index +1 because of the new column
-        const inTeam   = tr.querySelector('.team-checkbox').checked;   // NEW
+        const name     = tr.cells[2].textContent.trim();        // *** third cell = Name ***
+        const inTeam   = tr.querySelector('.team-checkbox').checked;
     
-        const selections = [1, 2, 3].map(p => {
-          const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
+        const selections = [1, 2, 3].map(pIdx => {
+          const wrapper = tr.querySelector(`td[data-player="${pIdx}"] .selected-line`);
           return wrapper
             ? Array.from(wrapper.querySelectorAll('img')).map(img => ({
                 name: img.alt,
@@ -293,11 +293,12 @@
             : null;
         });
     
-        return { location, name, selections, inTeam };                // NEW property
+        return { location, name, selections, inTeam };
       });
     
       return { players, rows };
     }
+
 
 
     async function saveState() {
