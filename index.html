@@ -247,6 +247,13 @@
       state.rows.forEach(r => {
         const tr = createRow(r.location, r.name);
         tbody.appendChild(tr);
+
+      const cb = tr.querySelector('.team-checkbox');
+        if (r.inTeam) {
+          cb.checked = true;
+          handleTeamToggle({ target: cb });   // reuse the same logic
+        }
+        
         r.selections.forEach((sel, pIdx) => {
           if (sel) {
             const cell = tr.querySelector(`td[data-player="${pIdx+1}"]`);
@@ -265,20 +272,33 @@
     }
 
     function buildState() {
-      const players = Array.from(document.querySelectorAll('thead th[contenteditable]')).map(th => th.textContent.trim());
-      const rows = Array.from(document.querySelectorAll('#tracker tbody tr')).map(tr => {
+      const players = Array.from(
+        document.querySelectorAll('thead th[contenteditable]')
+      ).map(th => th.textContent.trim());
+    
+      const rows = Array.from(
+        document.querySelectorAll('#tracker tbody tr')
+      ).map(tr => {
         const location = tr.querySelector('.location-cell').textContent.trim();
-        const name = tr.cells[1].textContent.trim();
-        const selections = [1,2,3].map(p => {
+        const name     = tr.cells[2].textContent.trim();              // index +1 because of the new column
+        const inTeam   = tr.querySelector('.team-checkbox').checked;   // NEW
+    
+        const selections = [1, 2, 3].map(p => {
           const wrapper = tr.querySelector(`td[data-player="${p}"] .selected-line`);
           return wrapper
-            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({ name: img.alt, id: Number(img.src.match(/\/(\d+)\.png$/)[1]) }))
+            ? Array.from(wrapper.querySelectorAll('img')).map(img => ({
+                name: img.alt,
+                id:   Number(img.src.match(/\/(\d+)\.png$/)[1])
+              }))
             : null;
         });
-        return { location, name, selections };
+    
+        return { location, name, selections, inTeam };                // NEW property
       });
+    
       return { players, rows };
     }
+
 
     async function saveState() {
       const state = buildState();
