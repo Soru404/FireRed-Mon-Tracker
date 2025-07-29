@@ -16,6 +16,8 @@
     th, td { border: 1px solid #ddd; text-align: center; padding: 6px; /* Increased padding for larger cells */ }
     td.location-cell { text-align: left; font-weight: 600; background-color: #fcfcfc; width: 200px; }
     th[contenteditable], td[contenteditable] { background: #eef; cursor: text; }
+    /* light blue background for in‑team rows */
+    tr.in-team { background: #eaf6ff; }        /* feels like table striping, but blue */
     #add-row-btn { padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
     #add-row-btn:hover { background-color: #45a049; }
     .dropdown { position: fixed; background: white; border: 1px solid #aaa; max-height: 350px; overflow-y: auto; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); padding: 5px; min-width: 200px; }
@@ -43,6 +45,8 @@
     #controls input[type="password"] { padding:6px; flex:1; min-width:220px; }
     #controls button { padding:6px 12px; }
     #save-state-btn { background:#4CAF50; color:#fff; border:none; border-radius:4px; }
+    
+
   </style>
 </head>
 <body>
@@ -198,12 +202,13 @@
     
       if (checkbox.checked) {
         // limit of six
+        
         if (document.querySelectorAll('.team-checkbox:checked').length > 6) {
           checkbox.checked = false;
           alert('Only six Pokémon can be in the team at once.');
           return;
         }
-    
+        row.classList.add('in-team');
         // move below existing in‑team rows
         const teamRows = Array.from(tbody.querySelectorAll('.team-checkbox:checked'))
                               .map(cb => cb.closest('tr'))
@@ -214,6 +219,7 @@
                  : tbody.insertBefore(row, tbody.firstChild);
     
       } else {
+         row.classList.remove('in-team');
         // move back to defaultLocations order
         const order = getLocationOrder(row);
     
@@ -266,6 +272,7 @@
       const cb = tr.querySelector('.team-checkbox');
         if (r.inTeam) {
           cb.checked = true;
+          tr.classList.add('in-team');
           handleTeamToggle({ target: cb });   // reuse the same logic to float the row
         }
         
