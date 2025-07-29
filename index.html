@@ -194,24 +194,38 @@
       const tbody    = row.parentElement;
     
       if (checkbox.checked) {
-        // limit of six
+        /* ---------- limit of 6 ---------- */
         if (document.querySelectorAll('.team-checkbox:checked').length > 6) {
           checkbox.checked = false;
           alert('Only six Pokémon can be in the team at once.');
           return;
         }
-        // move the row to the very top
-        tbody.insertBefore(row, tbody.firstChild);
+    
+        /* ---------- move BELOW existing in‑team rows ---------- */
+        const teamRows = Array.from(
+          tbody.querySelectorAll('.team-checkbox:checked')
+        )
+          .map(cb => cb.closest('tr'))
+          .filter(r => r !== row);          // exclude the row we’re moving now
+    
+        const lastTeamRow = teamRows.pop(); // undefined if none yet checked
+        if (lastTeamRow) {
+          tbody.insertBefore(row, lastTeamRow.nextSibling);  // after the last in‑team row
+        } else {
+          tbody.insertBefore(row, tbody.firstChild);         // first in‑team row
+        }
+    
       } else {
-        // move the row back to its original position among OTHER unchecked rows
+        /* ---------- unchecking: return to original order ---------- */
         const original = Number(row.dataset.originalIndex);
         const before   = Array.from(tbody.children)
-          .filter(r => !r.querySelector('.team-checkbox:checked'))        // rows that are not in team
-          .find(r => Number(r.dataset.originalIndex) > original);         // first one that came later
+          .filter(r => !r.querySelector('.team-checkbox:checked'))        // unchecked rows
+          .find(r => Number(r.dataset.originalIndex) > original);         // row that came later
     
         before ? tbody.insertBefore(row, before) : tbody.appendChild(row);
       }
     }
+
 
     async function fetchJSON(url) {
       try { const r = await fetch(url); return r.ok ? r.json() : null; } catch(e){ console.error(e); return null; }
