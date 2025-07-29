@@ -44,16 +44,34 @@
     #controls input[type="password"] { padding:6px; flex:1; min-width:220px; }
     #controls button { padding:6px 12px; }
     #save-state-btn { background:#4CAF50; color:#fff; border:none; border-radius:4px; }
-    /* ◆ highlight every cell in a checked row */
-    .in-team td            { background: #cce8ff !important; }
+
+    /* alternating pale‑red stripes with a faint diagonal pattern */
+    .in-team:nth-child(odd)  td{
+      background:#ffd6d6 !important;
+      background-image:repeating-linear-gradient(
+          45deg,
+          rgba(255,255,255,.15) 0 4px,
+          transparent            4px 8px
+      );
+    }
+    .in-team:nth-child(even) td{
+      background:#ffeaea !important;
+      background-image:repeating-linear-gradient(
+          45deg,
+          rgba(255,255,255,.10) 0 4px,
+          transparent            4px 8px
+      );
+    }
     
-    /* ◆ one thick black frame around the entire block */
-    .in-team-group-top td    { border-top:    4px solid #000 !important; }
-    .in-team-group-bottom td { border-bottom: 4px solid #000 !important; }
-    .in-team-group-top td:first-child,
-    .in-team-group-bottom td:first-child    { border-left:  4px solid #000 !important; }
-    .in-team-group-top td:last-child,
-    .in-team-group-bottom td:last-child     { border-right: 4px solid #000 !important; }
+    /* deep‑red outer frame + left ribbon */
+    .in-team-group-top    td{border-top:   4px solid #b40018 !important;}
+    .in-team-group-bottom td{border-bottom:4px solid #b40018 !important;}
+    .in-team td:first-child{
+      border-left:4px solid #b40018 !important;
+      box-shadow:inset 6px 0 0 #b40018;   /* ribbon */
+    }
+    .in-team td:last-child {border-right:4px solid #b40018 !important;}
+
 
   </style>
 </head>
