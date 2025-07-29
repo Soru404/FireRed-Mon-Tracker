@@ -5,201 +5,155 @@
   <title>RR Tracker</title>
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <style>
-/* ───────── General layout ───────── */
-:root{
-  --magma-red:       #b40018;  /* primary */
-  --magma-red-dark:  #990015;  /* hover / shade */
-}
-
-body{
-  font-family:'Segoe UI',Tahoma,sans-serif;
-  background:#f0f0f5;
-  margin:0;
-}
-.container{
-  max-width:1200px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-h1{
-  text-align:center;
-  margin-bottom:20px;
-  color:#333;
-}
-
-/* ───────── Table structure ───────── */
-table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-  margin-bottom:10px;
-}
-thead th{
-  background:var(--magma-red);
-  color:#fff;
-  padding:12px;
-  position:sticky;
-  top:0;
-  z-index:2;
-}
-thead th[contenteditable]{color:#000}
-tbody tr:nth-child(even){background:#f9f9f9}
-tbody tr:hover{background:#f1f1f1}
-th,td{
-  border:1px solid #ddd;
-  text-align:center;
-  padding:6px;
-}
-td.location-cell{
-  text-align:left;
-  font-weight:600;
-  background:#fcfcfc;
-  width:200px;
-}
-th[contenteditable],td[contenteditable]{background:#eef;cursor:text}
-
-/* ───────── Buttons ───────── */
-#refresh-btn,
-#save-state-btn,
-#add-row-btn{
-  padding:8px 12px;
-  background:var(--magma-red);
-  color:#fff;
-  border:none;
-  border-radius:4px;
-  cursor:pointer;
-}
-#refresh-btn:hover,
-#save-state-btn:hover,
-#add-row-btn:hover{
-  background:var(--magma-red-dark);
-}
-
-/* login overlay button */
-#login-box button{
-  width:100%;
-  padding:10px 12px;
-  border:none;
-  border-radius:6px;
-  background:var(--magma-red);
-  color:#fff;
-  cursor:pointer;
-  font-size:15px;
-}
-#login-box button:hover{background:var(--magma-red-dark)}
-
-/* ───────── Team column / checkboxes ───────── */
-.team-cell{width:60px}
-.team-cell input{transform:scale(1.3);cursor:pointer}
-
-/* ───────── Magma‑style in‑team block ───────── */
-
-/* alternating pale‑red stripes with subtle diagonal texture */
-.in-team:nth-child(odd)  td{
-  background:#ffd6d6 !important;
-  background-image:repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.15) 0 4px,
-      transparent            4px 8px);
-}
-.in-team:nth-child(even) td{
-  background:#ffeaea !important;
-  background-image:repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.10) 0 4px,
-      transparent            4px 8px);
-}
-
-/* thick magma‑red frame + left ribbon */
-.in-team-group-top    td{border-top:   4px solid var(--magma-red) !important}
-.in-team-group-bottom td{border-bottom:4px solid var(--magma-red) !important}
-.in-team td:first-child{
-  border-left:4px solid var(--magma-red) !important;
-  box-shadow:inset 6px 0 0 var(--magma-red);
-}
-.in-team td:last-child{border-right:4px solid var(--magma-red) !important}
-
-/* ───────── Dropdown / other UI ───────── */
-.dropdown{
-  position:fixed;
-  background:#fff;
-  border:1px solid #aaa;
-  max-height:350px;
-  overflow-y:auto;
-  z-index:100;
-  box-shadow:0 2px 6px rgba(0,0,0,.2);
-  padding:5px;
-  min-width:200px;
-}
-.dropdown input{
-  width:100%;
-  padding:4px;
-  margin-bottom:6px;
-  box-sizing:border-box;
-}
-.dropdown-item{
-  display:flex;
-  align-items:center;
-  padding:4px;
-  cursor:pointer;
-}
-.dropdown-item:hover{background:#eee}
-.dropdown-item img{width:48px;height:48px;margin-right:8px}
-
-.selected-line{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.selected-line img{width:64px;height:64px}
-
-/* ───────── Login overlay layout ───────── */
-#login-screen{
-  position:fixed;
-  inset:0;
-  background:#1e1e2f;
-  color:#fff;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  z-index:9999;
-}
-#login-box{
-  background:rgba(255,255,255,.1);
-  padding:32px 28px;
-  border-radius:12px;
-  width:320px;
-  max-width:90%;
-  box-shadow:0 6px 18px rgba(0,0,0,.4);
-}
-#login-box h2{margin-top:0;text-align:center}
-#login-box input{
-  width:100%;
-  padding:10px 12px;
-  border-radius:6px;
-  border:none;
-  margin:8px 0 16px;
-  box-sizing:border-box;
-}
-#login-error{color:#ff8a8a;font-size:13px;height:16px;margin-bottom:8px;text-align:center}
-
-/* controls row */
-#controls{
-  margin:16px 0;
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-#controls input[type=\"password\"]{padding:6px;flex:1;min-width:220px}
-#controls button{padding:6px 12px}
+    /* ───────── Team Magma palette ───────── */
+    :root{
+      --magma-red:#b40018;
+      --magma-red-dark:#990015;
+    }
+    
+    /* ───────── Layout & base table chrome ───────── */
+    body{
+      font-family:'Segoe UI',Tahoma,sans-serif;
+      background:#f0f0f5;
+      margin:0;
+    }
+    .container{
+      max-width:1200px;
+      margin:auto;
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+      box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    h1{text-align:center;margin-bottom:20px;color:#333}
+    
+    table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      margin-bottom:10px;
+    }
+    
+    /* ───────── Headers ───────── */
+    thead th{
+      background:var(--magma-red);
+      color:#fff;
+      padding:12px;
+      position:sticky;top:0;z-index:2;
+    }
+    /* editable player‑name headers share the same red */
+    thead th[contenteditable]{
+      background:var(--magma-red) !important;
+      color:#fff;
+    }
+    
+    tbody tr:nth-child(even){background:#f9f9f9}
+    tbody tr:hover{background:#f1f1f1}
+    th,td{border:1px solid #ddd;text-align:center;padding:6px}
+    
+    /* ───────── Column weights ───────── */
+    td.location-cell{
+      background:#fcfcfc;
+      width:200px;
+      font-weight:400;      /* normal */
+    }
+    tbody td:nth-child(3){  /* Name column */
+      font-weight:700;      /* bold */
+    }
+    
+    /* editable cells elsewhere keep subtle blue */
+    td[contenteditable]{background:#eef;cursor:text}
+    
+    /* ───────── Buttons ───────── */
+    #refresh-btn,#save-state-btn,#add-row-btn{
+      padding:8px 12px;
+      background:var(--magma-red);
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    #refresh-btn:hover,#save-state-btn:hover,#add-row-btn:hover{
+      background:var(--magma-red-dark);
+    }
+    
+    /* login overlay button */
+    #login-box button{
+      width:100%;padding:10px 12px;border:none;border-radius:6px;
+      background:var(--magma-red);color:#fff;font-size:15px;cursor:pointer;
+    }
+    #login-box button:hover{background:var(--magma-red-dark)}
+    
+    /* ───────── Team‑column checkbox ───────── */
+    .team-cell{width:60px}
+    .team-cell input{transform:scale(1.3);cursor:pointer}
+    
+    /* ───────── Team Magma in‑team block ───────── */
+    
+    /* remove internal vertical lines inside the block */
+    .in-team td{border-left:none;border-right:none}
+    
+    /* alternating pale‑red stripes with subtle diagonal texture */
+    .in-team:nth-child(odd)  td{
+      background:#ffd6d6 !important;
+      background-image:repeating-linear-gradient(
+         45deg,rgba(255,255,255,.15) 0 4px,transparent 4px 8px);
+    }
+    .in-team:nth-child(even) td{
+      background:#ffeaea !important;
+      background-image:repeating-linear-gradient(
+         45deg,rgba(255,255,255,.10) 0 4px,transparent 4px 8px);
+    }
+    
+    /* thick red frame + ribbon on left */
+    .in-team-group-top    td{border-top:   4px solid var(--magma-red) !important}
+    .in-team-group-bottom td{border-bottom:4px solid var(--magma-red) !important}
+    .in-team td:first-child{
+      border-left:4px solid var(--magma-red) !important;
+      box-shadow:inset 6px 0 0 var(--magma-red);
+    }
+    .in-team td:last-child{border-right:4px solid var(--magma-red) !important}
+    
+    /* ───────── Dropdown etc. ───────── */
+    .dropdown{
+      position:fixed;background:#fff;border:1px solid #aaa;
+      max-height:350px;overflow-y:auto;z-index:100;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+      padding:5px;min-width:200px;
+    }
+    .dropdown input{width:100%;padding:4px;margin-bottom:6px;box-sizing:border-box}
+    .dropdown-item{display:flex;align-items:center;padding:4px;cursor:pointer}
+    .dropdown-item:hover{background:#eee}
+    .dropdown-item img{width:48px;height:48px;margin-right:8px}
+    
+    .selected-line{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+    .selected-line img{width:64px;height:64px}
+    
+    /* ───────── Login overlay layout ───────── */
+    #login-screen{
+      position:fixed;inset:0;background:#1e1e2f;color:#fff;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:24px;z-index:9999;
+    }
+    #login-box{
+      background:rgba(255,255,255,.1);padding:32px 28px;border-radius:12px;
+      width:320px;max-width:90%;box-shadow:0 6px 18px rgba(0,0,0,.4);
+    }
+    #login-box h2{margin-top:0;text-align:center}
+    #login-box input{
+      width:100%;padding:10px 12px;border-radius:6px;border:none;
+      margin:8px 0 16px;box-sizing:border-box;
+    }
+    #login-error{color:#ff8a8a;font-size:13px;height:16px;margin-bottom:8px;text-align:center}
+    
+    /* controls row */
+    #controls{
+      margin:16px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center
+    }
+    #controls input[type=\"password\"]{padding:6px;flex:1;min-width:220px}
+    #controls button{padding:6px 12px}
 </style>
+
 
 </head>
 <body>
