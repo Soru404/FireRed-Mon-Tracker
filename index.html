@@ -489,7 +489,7 @@ async function loadEvolutionLines() {
   // Create the dropdown container
   const dd = document.createElement('div');
   dd.className = 'dropdown';
-  dd.style.position = 'fixed';        // ① coordinates now relative to the viewport
+  dd.style.position = 'fixed';
   dd.style.top  = rect.bottom + 'px';
   dd.style.left = rect.left   + 'px';
 
@@ -502,9 +502,37 @@ async function loadEvolutionLines() {
   const list = document.createElement('div');
   dd.appendChild(list);
 
+  // ── Delete / clear option (first) ──────────────────────────────
+  const delItem = document.createElement('div');
+  delItem.className = 'dropdown-item';
+  delItem.style.fontWeight = 'bold';
+  delItem.textContent = '🗑️ Delete selection';
+  delItem.onclick = () => {
+    // 1) clear the cell
+    cell.innerHTML = '';
+    // 2) refresh cached selections so this line becomes
+    //    available again in other dropdowns
+    updateSelectedPokemonIdsFromTable();
+    filterAvailableLines();
+    // 3) close the dropdown
+    closeDropdown();
+  };
+  list.appendChild(delItem);
+  // Optional separator under delete entry:
+  const hr = document.createElement('div');
+  hr.style.borderTop = '1px solid #ccc';
+  hr.style.margin = '4px 0';
+  list.appendChild(hr);
+  // ───────────────────────────────────────────────────────────────
+
   // Render helper
   function render(filter = '') {
-    list.innerHTML = '';
+    // Remove all items except the delete entry & separator
+    list.querySelectorAll('.dropdown-item:not(:first-child)').forEach(n => n.remove());
+    list.querySelectorAll('div').forEach(n => {
+      if (n !== delItem && n !== hr && n.className !== 'dropdown-item') n.remove();
+    });
+
     availableLines.forEach(line => {
       const text = line.map(p => p.name).join(' → ').toLowerCase();
       if (!filter || text.includes(filter)) {
@@ -528,18 +556,14 @@ async function loadEvolutionLines() {
         item.onclick = () => {
           const wrapper = document.createElement('div');
           wrapper.className = 'selected-line';
-
           line.forEach(p => {
             const img = document.createElement('img');
             img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
             img.alt = p.name;
             wrapper.appendChild(img);
           });
-
           cell.innerHTML = '';
           cell.appendChild(wrapper);
-
-          // Update state
           updateSelectedPokemonIdsFromTable();
           filterAvailableLines();
           closeDropdown();
@@ -556,8 +580,9 @@ async function loadEvolutionLines() {
 
   // Mount and focus (without scrolling)
   document.body.appendChild(dd);
-  input.focus({ preventScroll: true });   // ② don’t let the page jump
+  input.focus({ preventScroll: true });
 }
+
 
     function closeDropdown(){ const e=document.querySelector('.dropdown'); if(e) e.remove(); }
 
